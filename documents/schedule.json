@@ -1,0 +1,1042 @@
+[
+  {
+    "match_no": 1,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 1",
+    "kickoff_utc": "2026-06-11T19:00:00Z",
+    "ground": "Mexico City",
+    "team1": "Mexico",
+    "team2": "South Africa"
+  },
+  {
+    "match_no": 2,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 1",
+    "kickoff_utc": "2026-06-12T02:00:00Z",
+    "ground": "Guadalajara (Zapopan)",
+    "team1": "South Korea",
+    "team2": "Czech Republic"
+  },
+  {
+    "match_no": 3,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 8",
+    "kickoff_utc": "2026-06-18T16:00:00Z",
+    "ground": "Atlanta",
+    "team1": "Czech Republic",
+    "team2": "South Africa"
+  },
+  {
+    "match_no": 4,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 8",
+    "kickoff_utc": "2026-06-19T01:00:00Z",
+    "ground": "Guadalajara (Zapopan)",
+    "team1": "Mexico",
+    "team2": "South Korea"
+  },
+  {
+    "match_no": 5,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-25T01:00:00Z",
+    "ground": "Mexico City",
+    "team1": "Czech Republic",
+    "team2": "Mexico"
+  },
+  {
+    "match_no": 6,
+    "stage": "group",
+    "group": "A",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-25T01:00:00Z",
+    "ground": "Monterrey (Guadalupe)",
+    "team1": "South Africa",
+    "team2": "South Korea"
+  },
+  {
+    "match_no": 7,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 2",
+    "kickoff_utc": "2026-06-12T19:00:00Z",
+    "ground": "Toronto",
+    "team1": "Canada",
+    "team2": "Bosnia & Herzegovina"
+  },
+  {
+    "match_no": 8,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 3",
+    "kickoff_utc": "2026-06-13T19:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "Qatar",
+    "team2": "Switzerland"
+  },
+  {
+    "match_no": 9,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 8",
+    "kickoff_utc": "2026-06-18T19:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "Switzerland",
+    "team2": "Bosnia & Herzegovina"
+  },
+  {
+    "match_no": 10,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 8",
+    "kickoff_utc": "2026-06-18T22:00:00Z",
+    "ground": "Vancouver",
+    "team1": "Canada",
+    "team2": "Qatar"
+  },
+  {
+    "match_no": 11,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-24T19:00:00Z",
+    "ground": "Vancouver",
+    "team1": "Switzerland",
+    "team2": "Canada"
+  },
+  {
+    "match_no": 12,
+    "stage": "group",
+    "group": "B",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-24T19:00:00Z",
+    "ground": "Seattle",
+    "team1": "Bosnia & Herzegovina",
+    "team2": "Qatar"
+  },
+  {
+    "match_no": 13,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 3",
+    "kickoff_utc": "2026-06-13T22:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "Brazil",
+    "team2": "Morocco"
+  },
+  {
+    "match_no": 14,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 3",
+    "kickoff_utc": "2026-06-14T01:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "Haiti",
+    "team2": "Scotland"
+  },
+  {
+    "match_no": 15,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 9",
+    "kickoff_utc": "2026-06-19T22:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "Scotland",
+    "team2": "Morocco"
+  },
+  {
+    "match_no": 16,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 9",
+    "kickoff_utc": "2026-06-20T00:30:00Z",
+    "ground": "Philadelphia",
+    "team1": "Brazil",
+    "team2": "Haiti"
+  },
+  {
+    "match_no": 17,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-24T22:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "Scotland",
+    "team2": "Brazil"
+  },
+  {
+    "match_no": 18,
+    "stage": "group",
+    "group": "C",
+    "round_label": "Matchday 14",
+    "kickoff_utc": "2026-06-24T22:00:00Z",
+    "ground": "Atlanta",
+    "team1": "Morocco",
+    "team2": "Haiti"
+  },
+  {
+    "match_no": 19,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 2",
+    "kickoff_utc": "2026-06-13T01:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "USA",
+    "team2": "Paraguay"
+  },
+  {
+    "match_no": 20,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 3",
+    "kickoff_utc": "2026-06-14T04:00:00Z",
+    "ground": "Vancouver",
+    "team1": "Australia",
+    "team2": "Turkey"
+  },
+  {
+    "match_no": 21,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 9",
+    "kickoff_utc": "2026-06-19T19:00:00Z",
+    "ground": "Seattle",
+    "team1": "USA",
+    "team2": "Australia"
+  },
+  {
+    "match_no": 22,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 9",
+    "kickoff_utc": "2026-06-20T03:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "Turkey",
+    "team2": "Paraguay"
+  },
+  {
+    "match_no": 23,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-26T02:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "Turkey",
+    "team2": "USA"
+  },
+  {
+    "match_no": 24,
+    "stage": "group",
+    "group": "D",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-26T02:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "Paraguay",
+    "team2": "Australia"
+  },
+  {
+    "match_no": 25,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 4",
+    "kickoff_utc": "2026-06-14T17:00:00Z",
+    "ground": "Houston",
+    "team1": "Germany",
+    "team2": "Curaçao"
+  },
+  {
+    "match_no": 26,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 4",
+    "kickoff_utc": "2026-06-14T23:00:00Z",
+    "ground": "Philadelphia",
+    "team1": "Ivory Coast",
+    "team2": "Ecuador"
+  },
+  {
+    "match_no": 27,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 10",
+    "kickoff_utc": "2026-06-20T20:00:00Z",
+    "ground": "Toronto",
+    "team1": "Germany",
+    "team2": "Ivory Coast"
+  },
+  {
+    "match_no": 28,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 10",
+    "kickoff_utc": "2026-06-21T00:00:00Z",
+    "ground": "Kansas City",
+    "team1": "Ecuador",
+    "team2": "Curaçao"
+  },
+  {
+    "match_no": 29,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-25T20:00:00Z",
+    "ground": "Philadelphia",
+    "team1": "Curaçao",
+    "team2": "Ivory Coast"
+  },
+  {
+    "match_no": 30,
+    "stage": "group",
+    "group": "E",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-25T20:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "Ecuador",
+    "team2": "Germany"
+  },
+  {
+    "match_no": 31,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 4",
+    "kickoff_utc": "2026-06-14T20:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "Netherlands",
+    "team2": "Japan"
+  },
+  {
+    "match_no": 32,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 4",
+    "kickoff_utc": "2026-06-15T02:00:00Z",
+    "ground": "Monterrey (Guadalupe)",
+    "team1": "Sweden",
+    "team2": "Tunisia"
+  },
+  {
+    "match_no": 33,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 10",
+    "kickoff_utc": "2026-06-20T17:00:00Z",
+    "ground": "Houston",
+    "team1": "Netherlands",
+    "team2": "Sweden"
+  },
+  {
+    "match_no": 34,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 10",
+    "kickoff_utc": "2026-06-21T04:00:00Z",
+    "ground": "Monterrey (Guadalupe)",
+    "team1": "Tunisia",
+    "team2": "Japan"
+  },
+  {
+    "match_no": 35,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-25T23:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "Japan",
+    "team2": "Sweden"
+  },
+  {
+    "match_no": 36,
+    "stage": "group",
+    "group": "F",
+    "round_label": "Matchday 15",
+    "kickoff_utc": "2026-06-25T23:00:00Z",
+    "ground": "Kansas City",
+    "team1": "Tunisia",
+    "team2": "Netherlands"
+  },
+  {
+    "match_no": 37,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 5",
+    "kickoff_utc": "2026-06-15T19:00:00Z",
+    "ground": "Seattle",
+    "team1": "Belgium",
+    "team2": "Egypt"
+  },
+  {
+    "match_no": 38,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 5",
+    "kickoff_utc": "2026-06-16T01:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "Iran",
+    "team2": "New Zealand"
+  },
+  {
+    "match_no": 39,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 11",
+    "kickoff_utc": "2026-06-21T19:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "Belgium",
+    "team2": "Iran"
+  },
+  {
+    "match_no": 40,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 11",
+    "kickoff_utc": "2026-06-22T01:00:00Z",
+    "ground": "Vancouver",
+    "team1": "New Zealand",
+    "team2": "Egypt"
+  },
+  {
+    "match_no": 41,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-27T03:00:00Z",
+    "ground": "Seattle",
+    "team1": "Egypt",
+    "team2": "Iran"
+  },
+  {
+    "match_no": 42,
+    "stage": "group",
+    "group": "G",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-27T03:00:00Z",
+    "ground": "Vancouver",
+    "team1": "New Zealand",
+    "team2": "Belgium"
+  },
+  {
+    "match_no": 43,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 5",
+    "kickoff_utc": "2026-06-15T16:00:00Z",
+    "ground": "Atlanta",
+    "team1": "Spain",
+    "team2": "Cape Verde"
+  },
+  {
+    "match_no": 44,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 5",
+    "kickoff_utc": "2026-06-15T22:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "Saudi Arabia",
+    "team2": "Uruguay"
+  },
+  {
+    "match_no": 45,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 11",
+    "kickoff_utc": "2026-06-21T16:00:00Z",
+    "ground": "Atlanta",
+    "team1": "Spain",
+    "team2": "Saudi Arabia"
+  },
+  {
+    "match_no": 46,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 11",
+    "kickoff_utc": "2026-06-21T22:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "Uruguay",
+    "team2": "Cape Verde"
+  },
+  {
+    "match_no": 47,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-27T00:00:00Z",
+    "ground": "Houston",
+    "team1": "Cape Verde",
+    "team2": "Saudi Arabia"
+  },
+  {
+    "match_no": 48,
+    "stage": "group",
+    "group": "H",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-27T00:00:00Z",
+    "ground": "Guadalajara (Zapopan)",
+    "team1": "Uruguay",
+    "team2": "Spain"
+  },
+  {
+    "match_no": 49,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 6",
+    "kickoff_utc": "2026-06-16T19:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "France",
+    "team2": "Senegal"
+  },
+  {
+    "match_no": 50,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 6",
+    "kickoff_utc": "2026-06-16T22:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "Iraq",
+    "team2": "Norway"
+  },
+  {
+    "match_no": 51,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 12",
+    "kickoff_utc": "2026-06-22T21:00:00Z",
+    "ground": "Philadelphia",
+    "team1": "France",
+    "team2": "Iraq"
+  },
+  {
+    "match_no": 52,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 12",
+    "kickoff_utc": "2026-06-23T00:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "Norway",
+    "team2": "Senegal"
+  },
+  {
+    "match_no": 53,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-26T19:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "Norway",
+    "team2": "France"
+  },
+  {
+    "match_no": 54,
+    "stage": "group",
+    "group": "I",
+    "round_label": "Matchday 16",
+    "kickoff_utc": "2026-06-26T19:00:00Z",
+    "ground": "Toronto",
+    "team1": "Senegal",
+    "team2": "Iraq"
+  },
+  {
+    "match_no": 55,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 6",
+    "kickoff_utc": "2026-06-17T01:00:00Z",
+    "ground": "Kansas City",
+    "team1": "Argentina",
+    "team2": "Algeria"
+  },
+  {
+    "match_no": 56,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 6",
+    "kickoff_utc": "2026-06-17T04:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "Austria",
+    "team2": "Jordan"
+  },
+  {
+    "match_no": 57,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 12",
+    "kickoff_utc": "2026-06-22T17:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "Argentina",
+    "team2": "Austria"
+  },
+  {
+    "match_no": 58,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 12",
+    "kickoff_utc": "2026-06-23T03:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "Jordan",
+    "team2": "Algeria"
+  },
+  {
+    "match_no": 59,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-28T02:00:00Z",
+    "ground": "Kansas City",
+    "team1": "Algeria",
+    "team2": "Austria"
+  },
+  {
+    "match_no": 60,
+    "stage": "group",
+    "group": "J",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-28T02:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "Jordan",
+    "team2": "Argentina"
+  },
+  {
+    "match_no": 61,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 7",
+    "kickoff_utc": "2026-06-17T17:00:00Z",
+    "ground": "Houston",
+    "team1": "Portugal",
+    "team2": "DR Congo"
+  },
+  {
+    "match_no": 62,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 7",
+    "kickoff_utc": "2026-06-18T02:00:00Z",
+    "ground": "Mexico City",
+    "team1": "Uzbekistan",
+    "team2": "Colombia"
+  },
+  {
+    "match_no": 63,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 13",
+    "kickoff_utc": "2026-06-23T17:00:00Z",
+    "ground": "Houston",
+    "team1": "Portugal",
+    "team2": "Uzbekistan"
+  },
+  {
+    "match_no": 64,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 13",
+    "kickoff_utc": "2026-06-24T02:00:00Z",
+    "ground": "Guadalajara (Zapopan)",
+    "team1": "Colombia",
+    "team2": "DR Congo"
+  },
+  {
+    "match_no": 65,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-27T23:30:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "Colombia",
+    "team2": "Portugal"
+  },
+  {
+    "match_no": 66,
+    "stage": "group",
+    "group": "K",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-27T23:30:00Z",
+    "ground": "Atlanta",
+    "team1": "DR Congo",
+    "team2": "Uzbekistan"
+  },
+  {
+    "match_no": 67,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 7",
+    "kickoff_utc": "2026-06-17T20:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "England",
+    "team2": "Croatia"
+  },
+  {
+    "match_no": 68,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 7",
+    "kickoff_utc": "2026-06-17T23:00:00Z",
+    "ground": "Toronto",
+    "team1": "Ghana",
+    "team2": "Panama"
+  },
+  {
+    "match_no": 69,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 13",
+    "kickoff_utc": "2026-06-23T20:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "England",
+    "team2": "Ghana"
+  },
+  {
+    "match_no": 70,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 13",
+    "kickoff_utc": "2026-06-23T23:00:00Z",
+    "ground": "Toronto",
+    "team1": "Panama",
+    "team2": "Croatia"
+  },
+  {
+    "match_no": 71,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-27T21:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "Panama",
+    "team2": "England"
+  },
+  {
+    "match_no": 72,
+    "stage": "group",
+    "group": "L",
+    "round_label": "Matchday 17",
+    "kickoff_utc": "2026-06-27T21:00:00Z",
+    "ground": "Philadelphia",
+    "team1": "Croatia",
+    "team2": "Ghana"
+  },
+  {
+    "match_no": 73,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-28T19:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "2A",
+    "team2": "2B"
+  },
+  {
+    "match_no": 74,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-29T20:30:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "1E",
+    "team2": "3A/B/C/D/F"
+  },
+  {
+    "match_no": 75,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-30T01:00:00Z",
+    "ground": "Monterrey (Guadalupe)",
+    "team1": "1F",
+    "team2": "2C"
+  },
+  {
+    "match_no": 76,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-29T17:00:00Z",
+    "ground": "Houston",
+    "team1": "1C",
+    "team2": "2F"
+  },
+  {
+    "match_no": 77,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-30T21:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "1I",
+    "team2": "3C/D/F/G/H"
+  },
+  {
+    "match_no": 78,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-06-30T17:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "2E",
+    "team2": "2I"
+  },
+  {
+    "match_no": 79,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-01T01:00:00Z",
+    "ground": "Mexico City",
+    "team1": "1A",
+    "team2": "3C/E/F/H/I"
+  },
+  {
+    "match_no": 80,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-01T16:00:00Z",
+    "ground": "Atlanta",
+    "team1": "1L",
+    "team2": "3E/H/I/J/K"
+  },
+  {
+    "match_no": 81,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-02T00:00:00Z",
+    "ground": "San Francisco Bay Area (Santa Clara)",
+    "team1": "1D",
+    "team2": "3B/E/F/I/J"
+  },
+  {
+    "match_no": 82,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-01T20:00:00Z",
+    "ground": "Seattle",
+    "team1": "1G",
+    "team2": "3A/E/H/I/J"
+  },
+  {
+    "match_no": 83,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-02T23:00:00Z",
+    "ground": "Toronto",
+    "team1": "2K",
+    "team2": "2L"
+  },
+  {
+    "match_no": 84,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-02T19:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "1H",
+    "team2": "2J"
+  },
+  {
+    "match_no": 85,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-03T03:00:00Z",
+    "ground": "Vancouver",
+    "team1": "1B",
+    "team2": "3E/F/G/I/J"
+  },
+  {
+    "match_no": 86,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-03T22:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "1J",
+    "team2": "2H"
+  },
+  {
+    "match_no": 87,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-04T01:30:00Z",
+    "ground": "Kansas City",
+    "team1": "1K",
+    "team2": "3D/E/I/J/L"
+  },
+  {
+    "match_no": 88,
+    "stage": "Round of 32",
+    "group": null,
+    "round_label": "Round of 32",
+    "kickoff_utc": "2026-07-03T18:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "2D",
+    "team2": "2G"
+  },
+  {
+    "match_no": 89,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-04T21:00:00Z",
+    "ground": "Philadelphia",
+    "team1": "W74",
+    "team2": "W77"
+  },
+  {
+    "match_no": 90,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-04T17:00:00Z",
+    "ground": "Houston",
+    "team1": "W73",
+    "team2": "W75"
+  },
+  {
+    "match_no": 91,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-05T20:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "W76",
+    "team2": "W78"
+  },
+  {
+    "match_no": 92,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-06T00:00:00Z",
+    "ground": "Mexico City",
+    "team1": "W79",
+    "team2": "W80"
+  },
+  {
+    "match_no": 93,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-06T19:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "W83",
+    "team2": "W84"
+  },
+  {
+    "match_no": 94,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-07T00:00:00Z",
+    "ground": "Seattle",
+    "team1": "W81",
+    "team2": "W82"
+  },
+  {
+    "match_no": 95,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-07T16:00:00Z",
+    "ground": "Atlanta",
+    "team1": "W86",
+    "team2": "W88"
+  },
+  {
+    "match_no": 96,
+    "stage": "Round of 16",
+    "group": null,
+    "round_label": "Round of 16",
+    "kickoff_utc": "2026-07-07T20:00:00Z",
+    "ground": "Vancouver",
+    "team1": "W85",
+    "team2": "W87"
+  },
+  {
+    "match_no": 97,
+    "stage": "Quarter-final",
+    "group": null,
+    "round_label": "Quarter-final",
+    "kickoff_utc": "2026-07-09T20:00:00Z",
+    "ground": "Boston (Foxborough)",
+    "team1": "W89",
+    "team2": "W90"
+  },
+  {
+    "match_no": 98,
+    "stage": "Quarter-final",
+    "group": null,
+    "round_label": "Quarter-final",
+    "kickoff_utc": "2026-07-10T19:00:00Z",
+    "ground": "Los Angeles (Inglewood)",
+    "team1": "W93",
+    "team2": "W94"
+  },
+  {
+    "match_no": 99,
+    "stage": "Quarter-final",
+    "group": null,
+    "round_label": "Quarter-final",
+    "kickoff_utc": "2026-07-11T21:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "W91",
+    "team2": "W92"
+  },
+  {
+    "match_no": 100,
+    "stage": "Quarter-final",
+    "group": null,
+    "round_label": "Quarter-final",
+    "kickoff_utc": "2026-07-12T01:00:00Z",
+    "ground": "Kansas City",
+    "team1": "W95",
+    "team2": "W96"
+  },
+  {
+    "match_no": 101,
+    "stage": "Semi-final",
+    "group": null,
+    "round_label": "Semi-final",
+    "kickoff_utc": "2026-07-14T19:00:00Z",
+    "ground": "Dallas (Arlington)",
+    "team1": "W97",
+    "team2": "W98"
+  },
+  {
+    "match_no": 102,
+    "stage": "Semi-final",
+    "group": null,
+    "round_label": "Semi-final",
+    "kickoff_utc": "2026-07-15T19:00:00Z",
+    "ground": "Atlanta",
+    "team1": "W99",
+    "team2": "W100"
+  },
+  {
+    "match_no": 103,
+    "stage": "Third place",
+    "group": null,
+    "round_label": "Match for third place",
+    "kickoff_utc": "2026-07-18T21:00:00Z",
+    "ground": "Miami (Miami Gardens)",
+    "team1": "L101",
+    "team2": "L102"
+  },
+  {
+    "match_no": 104,
+    "stage": "Final",
+    "group": null,
+    "round_label": "Final",
+    "kickoff_utc": "2026-07-19T19:00:00Z",
+    "ground": "New York/New Jersey (East Rutherford)",
+    "team1": "W101",
+    "team2": "W102"
+  }
+]

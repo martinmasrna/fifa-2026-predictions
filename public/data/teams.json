@@ -1,0 +1,194 @@
+[
+  {
+    "name": "Czech Republic",
+    "group": "A"
+  },
+  {
+    "name": "Mexico",
+    "group": "A"
+  },
+  {
+    "name": "South Africa",
+    "group": "A"
+  },
+  {
+    "name": "South Korea",
+    "group": "A"
+  },
+  {
+    "name": "Bosnia & Herzegovina",
+    "group": "B"
+  },
+  {
+    "name": "Canada",
+    "group": "B"
+  },
+  {
+    "name": "Qatar",
+    "group": "B"
+  },
+  {
+    "name": "Switzerland",
+    "group": "B"
+  },
+  {
+    "name": "Brazil",
+    "group": "C"
+  },
+  {
+    "name": "Haiti",
+    "group": "C"
+  },
+  {
+    "name": "Morocco",
+    "group": "C"
+  },
+  {
+    "name": "Scotland",
+    "group": "C"
+  },
+  {
+    "name": "Australia",
+    "group": "D"
+  },
+  {
+    "name": "Paraguay",
+    "group": "D"
+  },
+  {
+    "name": "Turkey",
+    "group": "D"
+  },
+  {
+    "name": "USA",
+    "group": "D"
+  },
+  {
+    "name": "Curaçao",
+    "group": "E"
+  },
+  {
+    "name": "Ecuador",
+    "group": "E"
+  },
+  {
+    "name": "Germany",
+    "group": "E"
+  },
+  {
+    "name": "Ivory Coast",
+    "group": "E"
+  },
+  {
+    "name": "Japan",
+    "group": "F"
+  },
+  {
+    "name": "Netherlands",
+    "group": "F"
+  },
+  {
+    "name": "Sweden",
+    "group": "F"
+  },
+  {
+    "name": "Tunisia",
+    "group": "F"
+  },
+  {
+    "name": "Belgium",
+    "group": "G"
+  },
+  {
+    "name": "Egypt",
+    "group": "G"
+  },
+  {
+    "name": "Iran",
+    "group": "G"
+  },
+  {
+    "name": "New Zealand",
+    "group": "G"
+  },
+  {
+    "name": "Cape Verde",
+    "group": "H"
+  },
+  {
+    "name": "Saudi Arabia",
+    "group": "H"
+  },
+  {
+    "name": "Spain",
+    "group": "H"
+  },
+  {
+    "name": "Uruguay",
+    "group": "H"
+  },
+  {
+    "name": "France",
+    "group": "I"
+  },
+  {
+    "name": "Iraq",
+    "group": "I"
+  },
+  {
+    "name": "Norway",
+    "group": "I"
+  },
+  {
+    "name": "Senegal",
+    "group": "I"
+  },
+  {
+    "name": "Algeria",
+    "group": "J"
+  },
+  {
+    "name": "Argentina",
+    "group": "J"
+  },
+  {
+    "name": "Austria",
+    "group": "J"
+  },
+  {
+    "name": "Jordan",
+    "group": "J"
+  },
+  {
+    "name": "Colombia",
+    "group": "K"
+  },
+  {
+    "name": "DR Congo",
+    "group": "K"
+  },
+  {
+    "name": "Portugal",
+    "group": "K"
+  },
+  {
+    "name": "Uzbekistan",
+    "group": "K"
+  },
+  {
+    "name": "Croatia",
+    "group": "L"
+  },
+  {
+    "name": "England",
+    "group": "L"
+  },
+  {
+    "name": "Ghana",
+    "group": "L"
+  },
+  {
+    "name": "Panama",
+    "group": "L"
+  }
+]

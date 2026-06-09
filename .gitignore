@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables — never commit these
+.env
+.env.local
+.env.*.local
+
+# Claude Code local settings
+.claude/
+
+# Editor / OS
+.DS_Store
+.vscode/
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*

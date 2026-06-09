@@ -1,0 +1,14 @@
+{
+  "_comment": "Hand-picked teams with a story worth following — players choose one to root for. Scoring depends only on how far the team advances (see scoring.js), not on which team is picked.",
+  "pays_if": "the team reaches the Round of 16 or beyond — points grow the further they go",
+  "teams": [
+    { "name": "Norway", "story": "Erling Haaland leads them to their first World Cup since 1998" },
+    { "name": "Morocco", "story": "2022 semi-finalists — the deepest run ever by an African nation — back for more" },
+    { "name": "Japan", "story": "Beat both Germany and Spain in the 2022 group stage; always a banana skin for giants" },
+    { "name": "Croatia", "story": "Modrić's likely last World Cup — the team that went from nowhere to the 2018 final" },
+    { "name": "Egypt", "story": "Mohamed Salah's last shot at a World Cup moment to remember" },
+    { "name": "USA", "story": "Co-hosts riding a home crowd, built around a young core led by Pulisic" },
+    { "name": "Mexico", "story": "Co-hosts with one of football's most passionate fanbases, hunting to finally break their Round-of-16 ceiling" },
+    { "name": "Uruguay", "story": "A nation of 3.4 million with two World Cup titles — football's biggest overachievers" }
+  ]
+}
