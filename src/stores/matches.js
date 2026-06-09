@@ -34,10 +34,11 @@ export const useMatchesStore = defineStore('matches', () => {
   )
 
   async function loadReferenceData() {
+    const base = import.meta.env.BASE_URL
     const [s, t, d] = await Promise.all([
-      fetch('/data/schedule.json').then(r => r.json()),
-      fetch('/data/teams.json').then(r => r.json()),
-      fetch('/data/dark_horse_teams.json').then(r => r.json()),
+      fetch(`${base}data/schedule.json`).then(r => r.json()),
+      fetch(`${base}data/teams.json`).then(r => r.json()),
+      fetch(`${base}data/dark_horse_teams.json`).then(r => r.json()),
     ])
     schedule.value = s
     teams.value = t
