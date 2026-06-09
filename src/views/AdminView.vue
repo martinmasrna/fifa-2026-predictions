@@ -172,7 +172,7 @@
           Removed members still know the old code. Generate a new hash and redeploy to lock them out.
         </p>
         <details class="text-xs text-gray-600">
-          <summary class="cursor-pointer text-brand-600 underline">How to rotate</summary>
+          <summary class="cursor-pointer text-pitch underline">How to rotate</summary>
           <ol class="mt-2 space-y-1 list-decimal pl-4">
             <li>Choose a new join code</li>
             <li>Run: <code class="bg-gray-100 px-1 rounded">node -e "import('bcryptjs').then(b => b.default.hash('NEWCODE', 10).then(console.log))"</code></li>
@@ -191,7 +191,9 @@
       <div class="card p-6 w-full max-w-sm">
         <h3 class="font-bold text-lg mb-2">Remove {{ removeTarget.display_name }}?</h3>
         <p class="text-sm text-gray-500 mb-6">
-          This permanently deletes their account, all predictions, and scores. Cannot be undone.
+          Removes them from the pool and deletes their predictions &amp; scores. Their login still
+          exists in Supabase Auth — delete it there (and/or rotate the join code) for a full lockout.
+          Cannot be undone.
         </p>
         <div class="flex gap-3">
           <button @click="removeTarget = null" class="btn-secondary flex-1">Cancel</button>
@@ -349,13 +351,25 @@ async function removeMember() {
   removeError.value = ''
   removeSaving.value = true
   try {
-    // Delete from members — cascade handles predictions + scores
-    const { error } = await supabase
+    const uid = removeTarget.value.user_id
+    // predictions/scores reference auth.users (not members), so remove them
+    // explicitly before the membership row (all gated to the owner by RLS).
+    await supabase.from('predictions').delete().eq('user_id', uid)
+    await supabase.from('prediction_scores').delete().eq('user_id', uid)
+    await supabase.from('pretournament_predictions').delete().eq('user_id', uid)
+    await supabase.from('pretournament_scores').delete().eq('user_id', uid)
+
+    const { data, error } = await supabase
       .from('members')
       .delete()
-      .eq('user_id', removeTarget.value.user_id)
+      .eq('user_id', uid)
+      .select()
     if (error) throw error
-    members.value = members.value.filter(m => m.user_id !== removeTarget.value.user_id)
+    if (!data || data.length === 0) {
+      throw new Error('Nothing was removed — apply migration 003 (owner delete policies) in Supabase first.')
+    }
+
+    members.value = members.value.filter(m => m.user_id !== uid)
     removeTarget.value = null
   } catch (e) {
     removeError.value = e.message

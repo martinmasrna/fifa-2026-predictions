@@ -101,9 +101,14 @@
               :title="p.display_name"
             >{{ p.display_name?.[0] ?? '?' }}</div>
           </div>
-          <p class="text-xs text-ink/45">Share the join code to get more friends in before kickoff.</p>
+          <button @click="copyInvite" class="btn-secondary btn-sm w-full mb-2">
+            <Icon name="users" :size="15" /> {{ inviteCopied ? 'Link copied ✓' : 'Copy invite link' }}
+          </button>
+          <p class="text-xs text-ink/45">Share the link to get friends in — they'll need the join code from you too.</p>
         </div>
       </div>
+
+      <UpcomingMatches />
     </template>
 
     <!-- ══ LIVE STATE — standings board ═══════════════════ -->
@@ -112,6 +117,8 @@
         <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Leaderboard</h1></div>
         <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
       </div>
+
+      <UpcomingMatches />
 
       <div v-if="lb.loading && rankedRows.length === 0" class="card p-4 space-y-3.5">
         <div v-for="n in 6" :key="n" class="flex items-center gap-3">
@@ -180,9 +187,10 @@ import { RouterLink } from 'vue-router'
 import { useLeaderboardStore } from '../stores/leaderboard.js'
 import { useAuthStore } from '../stores/auth.js'
 import { useMatchesStore } from '../stores/matches.js'
-import { MATCH_1_KICKOFF } from '../config.js'
+import { MATCH_1_KICKOFF, CONFIG } from '../config.js'
 import { serverNow } from '../lib/serverTime.js'
 import RoundRecap from '../components/RoundRecap.vue'
+import UpcomingMatches from '../components/UpcomingMatches.vue'
 import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
 import { flagUrl } from '../lib/flags.js'
@@ -191,6 +199,21 @@ const lb = useLeaderboardStore()
 const auth = useAuthStore()
 const matchesStore = useMatchesStore()
 const recapRound = ref(null)
+
+// ── Copy invite link ───────────────────────────────────
+const inviteCopied = ref(false)
+async function copyInvite() {
+  const url = `${window.location.origin}${import.meta.env.BASE_URL}`
+  const text = `Join the ${CONFIG.poolName} World Cup 2026 pool 🏆\n${url}`
+  try {
+    await navigator.clipboard.writeText(text)
+    inviteCopied.value = true
+    setTimeout(() => { inviteCopied.value = false }, 2500)
+  } catch {
+    // Clipboard blocked (rare on https) — fall back to a prompt the user can copy from
+    window.prompt('Copy the invite link:', text)
+  }
+}
 
 const rankedRows = computed(() => lb.rankedRows)
 const playerCount = computed(() => lb.rankedRows.length)
