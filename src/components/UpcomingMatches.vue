@@ -10,16 +10,27 @@
       <RouterLink
         v-for="m in upcoming" :key="m.match_no"
         to="/matches"
-        class="flex items-center gap-2.5 py-2.5 px-2 -mx-2 rounded-lg hover:bg-pitch-soft/30 transition-colors"
+        class="grid items-center gap-x-3 py-2.5 px-2 -mx-2 rounded-lg hover:bg-pitch-soft/30 transition-colors"
+        style="grid-template-columns: 4rem minmax(0,1fr) auto minmax(0,1fr) 5.5rem"
       >
-        <span class="text-[11px] text-ink/45 w-16 shrink-0">{{ kickoffLabel(m) }}</span>
-        <Flag :team="m.team1" size="xs" />
-        <span class="text-sm font-medium truncate flex-1 min-w-0">{{ m.team1 }}</span>
-        <span class="text-ink/25 text-xs shrink-0">v</span>
-        <Flag :team="m.team2" size="xs" />
-        <span class="text-sm font-medium truncate flex-1 min-w-0">{{ m.team2 }}</span>
+        <span class="text-[11px] text-ink/45">{{ kickoffLabel(m) }}</span>
+
+        <!-- home (right-aligned toward centre) -->
+        <span class="w-full flex items-center justify-end gap-2 min-w-0">
+          <span class="text-sm font-medium truncate">{{ m.team1 }}</span>
+          <Flag :team="m.team1" size="xs" />
+        </span>
+
+        <span class="text-ink/25 text-xs">v</span>
+
+        <!-- away (left-aligned from centre) -->
+        <span class="w-full flex items-center gap-2 min-w-0">
+          <Flag :team="m.team2" size="xs" />
+          <span class="text-sm font-medium truncate">{{ m.team2 }}</span>
+        </span>
+
         <span
-          class="shrink-0 text-xs font-semibold"
+          class="text-xs font-semibold text-right"
           :class="predMap.has(m.match_no) ? 'text-pitch' : 'text-gold-dark'"
         >{{ predMap.has(m.match_no) ? 'Picked ✓' : 'Predict →' }}</span>
       </RouterLink>

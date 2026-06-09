@@ -13,6 +13,14 @@ export const CONFIG = {
 // This is a local constant so the app works even before Supabase data loads.
 export const MATCH_1_KICKOFF = '2026-06-11T19:00:00Z'
 
+// Group quotes / inside jokes — rotated on the login screen.
+// Add more any time; keep them exactly as said.
+export const QUOTES = [
+  { text: 'nabuduce ta uz nenecham vyhrať ;)', author: 'Martin' },
+  { text: 'Buď si hráč, alebo si sráč.', author: 'Unknown' },
+  { text: 'Tu mace fotbal ... a bavce fotbal.', author: 'Vlado Matúš' },
+]
+
 // Knockout stages (for rendering and logic)
 export const KNOCKOUT_STAGES = [
   'Round of 32',

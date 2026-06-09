@@ -102,14 +102,7 @@
     100% { transform: translateX(100%); }
   }
 
-  /* Route view transition — gentle fade + lift, quick leave */
-  .page-enter-active { transition: opacity 0.28s ease, transform 0.28s ease; }
-  .page-enter-from   { opacity: 0; transform: translateY(6px); }
-  .page-leave-active { transition: opacity 0.12s ease; }
-  .page-leave-to     { opacity: 0; }
-
   @media (prefers-reduced-motion: reduce) {
-    .page-enter-active, .page-leave-active { transition: none; }
     .skeleton::after { animation: none; }
     .animate-fade-in, .animate-pop { animation: none; }
   }
@@ -146,4 +139,27 @@
   }
   .ticket::before { left: -9px; }
   .ticket::after { right: -9px; }
+}
+
+/* ── Vue <transition> classes ─────────────────────────────────
+   Defined OUTSIDE @layer on purpose: their names are generated at
+   runtime (name="page"/name="quote") and never appear in source, so
+   Tailwind's content-based purge would strip them from a @layer. */
+
+/* Rotating login quote — overlapping crossfade (quotes are absolutely
+   stacked, so both fade through each other at once). */
+.quote-enter-active,
+.quote-leave-active { transition: opacity 1.2s ease; }
+.quote-enter-from,
+.quote-leave-to { opacity: 0; }
+
+/* Route view transition — plain crossfade, no vertical movement. */
+.page-enter-active { transition: opacity 0.25s ease; }
+.page-enter-from   { opacity: 0; }
+.page-leave-active { transition: opacity 0.12s ease; }
+.page-leave-to     { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-enter-active, .quote-leave-active,
+  .page-enter-active, .page-leave-active { transition: none; }
 }

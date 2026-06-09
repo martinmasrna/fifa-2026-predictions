@@ -28,7 +28,7 @@
     <!-- ── Step 0: How to Play ───────────────────────────── -->
     <div v-if="step === 0" class="max-w-3xl mx-auto animate-fade-in">
       <div class="flex items-center gap-3 mb-1"><span class="gold-rule"></span><h2 class="font-display font-extrabold text-3xl">How to play</h2></div>
-      <p class="text-ink/50 text-sm mb-7">Here's how points are earned across the tournament.</p>
+      <p class="text-ink/50 text-sm mb-7">Quick rundown of how you score.</p>
 
       <div class="space-y-7">
         <div>
@@ -185,7 +185,7 @@
     <div v-if="step === 4" class="max-w-2xl mx-auto text-center animate-fade-in">
       <div class="text-5xl mb-3 animate-pop">🎉</div>
       <h2 class="font-display font-extrabold text-3xl mb-1">You're locked in!</h2>
-      <p class="text-ink/50 text-sm mb-8">You can tweak your picks from <span class="font-semibold text-ink/70">My Predictions</span> right up until the first whistle.</p>
+      <p class="text-ink/50 text-sm mb-8">You can tweak your picks from <span class="font-semibold text-ink/70">My Picks</span> right up until the first whistle.</p>
 
       <div class="card p-6 text-left space-y-6">
         <div>
@@ -242,8 +242,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import confetti from 'canvas-confetti'
 import { useMatchesStore } from '../stores/matches.js'
 import Flag from '../components/Flag.vue'
 
@@ -333,4 +334,13 @@ async function advance() {
 function skipToApp() {
   router.push('/')
 }
+
+// 🎉 Celebrate when picks are locked in (the finale). Respects reduced motion.
+watch(step, (s) => {
+  if (s !== 4) return
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+  const colors = ['#138A52', '#0E6E41', '#D99B27', '#FBF1DC']
+  confetti({ particleCount: 130, spread: 80, startVelocity: 42, origin: { y: 0.4 }, colors })
+  setTimeout(() => confetti({ particleCount: 70, spread: 110, scalar: 0.9, origin: { y: 0.45 }, colors }), 220)
+})
 </script>

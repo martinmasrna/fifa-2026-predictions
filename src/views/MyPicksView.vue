@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center gap-3 mb-6"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">My Predictions</h1></div>
+    <div class="flex items-center gap-3 mb-6"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">My Picks</h1></div>
 
     <!-- Pre-tournament section -->
     <div class="card p-5 mb-8">

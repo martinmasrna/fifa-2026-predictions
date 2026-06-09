@@ -12,7 +12,7 @@
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
           <NavLink to="/tournament">Tournament</NavLink>
-          <NavLink to="/my-picks">My Predictions</NavLink>
+          <NavLink to="/my-picks">My Picks</NavLink>
           <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
         </div>
 
@@ -35,7 +35,7 @@
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
           <NavLink to="/tournament">Tournament</NavLink>
-          <NavLink to="/my-picks">My Predictions</NavLink>
+          <NavLink to="/my-picks">My Picks</NavLink>
           <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
         </div>
         <!-- right-edge fade signals there's more to scroll -->
