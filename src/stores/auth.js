@@ -51,14 +51,23 @@ export const useAuthStore = defineStore('auth', () => {
   const pendingDisplayName = ref('')
 
   async function signIn(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    // Set session + member synchronously so callers can route immediately
+    // (don't rely on the async onAuthStateChange handler having run yet).
+    session.value = data.session
+    await fetchMember(data.user.id)
   }
 
-  async function signUp(email, password, displayName) {
-    const { error } = await supabase.auth.signUp({ email, password })
+  async function signUp(email, password) {
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw error
-    pendingDisplayName.value = displayName
+    // Display name is collected on the join screen (with the join code),
+    // so account creation stays minimal: email + password only.
+    if (data.session) {
+      session.value = data.session
+      member.value = null
+    }
   }
 
   async function signOut() {

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JPZK 2026 · Direction B — Stadium Daylight</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+        },
+        colors: {
+          canvas: '#FAF7F2',
+          ink: '#141A2E',
+          primary: { DEFAULT: '#4F46E5', soft: '#EEF0FF' },
+          coral: { DEFAULT: '#FB6F62', soft: '#FFEEEC' },
+          gold: '#C99A2E',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: Inter, sans-serif; }
+  .font-display { font-family: Fraunces, serif; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(20,26,46,.04), 0 8px 24px -12px rgba(20,26,46,.12); }
+  .hero-grad { background: linear-gradient(135deg, #4F46E5, #6366F1 55%, #818CF8); }
+</style>
+</head>
+<body class="bg-canvas text-ink min-h-screen antialiased">
+
+<div class="bg-primary-soft text-primary text-center text-xs py-1.5 border-b border-primary/10">
+  DIRECTION B · STADIUM DAYLIGHT — light, editorial-sports · (standings shown with sample data)
+</div>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-20 bg-canvas/85 backdrop-blur border-b border-ink/10">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-primary grid place-items-center text-white text-sm font-700">⚽</div>
+      <span class="font-display font-700 text-xl tracking-tight">JPZK 2026</span>
+    </div>
+    <div class="hidden md:flex items-center gap-6 text-sm font-500">
+      <a class="relative text-ink py-5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary">Leaderboard</a>
+      <a class="text-ink/55 hover:text-ink py-5">Matches</a>
+      <a class="text-ink/55 hover:text-ink py-5">Standings</a>
+      <a class="text-ink/55 hover:text-ink py-5">Bracket</a>
+      <a class="text-ink/55 hover:text-ink py-5">My Predictions</a>
+    </div>
+    <div class="flex items-center gap-3 text-sm">
+      <span class="text-ink/55">Martin</span>
+      <div class="w-8 h-8 rounded-full bg-primary grid place-items-center text-white font-700">M</div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-5 py-7 space-y-6">
+
+  <!-- HERO -->
+  <section class="hero-grad rounded-3xl p-7 md:p-9 text-white relative overflow-hidden card-shadow">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <div class="text-xs font-600 tracking-[0.2em] text-white/70 uppercase mb-3">Kickoff in</div>
+        <div class="flex items-end gap-3 font-display tnum">
+          <div class="text-center"><div id="d" class="text-6xl font-700 leading-none">01</div><div class="text-[11px] text-white/60 mt-1 tracking-widest">DAYS</div></div>
+          <div class="text-5xl text-white/40 pb-2">:</div>
+          <div class="text-center"><div id="h" class="text-6xl font-700 leading-none">23</div><div class="text-[11px] text-white/60 mt-1 tracking-widest">HRS</div></div>
+          <div class="text-5xl text-white/40 pb-2">:</div>
+          <div class="text-center"><div id="m" class="text-6xl font-700 leading-none">47</div><div class="text-[11px] text-white/60 mt-1 tracking-widest">MIN</div></div>
+          <div class="text-5xl text-white/40 pb-2">:</div>
+          <div class="text-center"><div id="s" class="text-6xl font-700 leading-none text-coral">12</div><div class="text-[11px] text-white/60 mt-1 tracking-widest">SEC</div></div>
+        </div>
+        <p class="text-white/75 text-sm mt-5">Pre-tournament picks lock when the first whistle blows.</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-2xl border border-white/15 p-5">
+        <div class="text-[11px] uppercase tracking-widest text-white/60 mb-4 text-center">Opening match · Jun 11, 21:00</div>
+        <div class="flex items-center justify-center gap-6">
+          <div class="flex flex-col items-center gap-2">
+            <img src="https://flagcdn.com/w80/mx.png" class="w-14 rounded-md shadow-lg" />
+            <span class="font-600 text-sm">Mexico</span>
+          </div>
+          <div class="font-display text-2xl font-700 text-white/50">vs</div>
+          <div class="flex flex-col items-center gap-2">
+            <img src="https://flagcdn.com/w80/za.png" class="w-14 rounded-md shadow-lg" />
+            <span class="font-600 text-sm">South Africa</span>
+          </div>
+        </div>
+        <button class="mt-5 w-full bg-white text-primary font-700 rounded-xl py-2.5 text-sm hover:bg-white/90 transition">Predict this match →</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- STANDINGS -->
+    <section class="lg:col-span-2 bg-white rounded-2xl border border-ink/10 overflow-hidden card-shadow">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-ink/10">
+        <h2 class="font-display font-700 text-xl">Standings</h2>
+        <span class="flex items-center gap-1.5 text-xs text-coral font-600"><span class="w-2 h-2 rounded-full bg-coral animate-pulse"></span> LIVE</span>
+      </div>
+      <table class="w-full text-sm">
+        <thead class="text-[11px] uppercase tracking-wider text-ink/40">
+          <tr>
+            <th class="text-center py-2.5 w-12">#</th>
+            <th class="text-left py-2.5">Player</th>
+            <th class="text-center py-2.5 hidden sm:table-cell font-500">Pre</th>
+            <th class="text-center py-2.5 hidden sm:table-cell font-500">Group</th>
+            <th class="text-center py-2.5 hidden sm:table-cell font-500">KO</th>
+            <th class="text-right py-2.5 pr-5">Total</th>
+          </tr>
+        </thead>
+        <tbody class="tnum">
+          <tr class="border-t border-ink/5">
+            <td class="text-center py-3.5 text-xl">🥇</td>
+            <td class="py-3.5 font-600">Petra <span class="text-emerald-600 text-xs">▲2</span></td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">90</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">112</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">30</td>
+            <td class="text-right pr-5 font-display font-700 text-gold text-lg">232</td>
+          </tr>
+          <tr class="border-t border-ink/5">
+            <td class="text-center py-3.5 text-xl">🥈</td>
+            <td class="py-3.5 font-600">Jakub <span class="text-rose-500 text-xs">▼1</span></td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">75</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">120</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">20</td>
+            <td class="text-right pr-5 font-display font-700 text-lg">215</td>
+          </tr>
+          <tr class="border-t border-ink/5">
+            <td class="text-center py-3.5 text-xl">🥉</td>
+            <td class="py-3.5 font-600">Zuzana</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">60</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">108</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">10</td>
+            <td class="text-right pr-5 font-display font-700 text-lg">178</td>
+          </tr>
+          <tr class="border-t border-ink/5 bg-primary-soft">
+            <td class="text-center py-3.5 font-700 text-primary">4</td>
+            <td class="py-3.5 font-700 text-primary">Martin <span class="text-[11px] font-500 text-primary/60">(you)</span> <span class="text-emerald-600 text-xs">▲1</span></td>
+            <td class="text-center text-ink/70 hidden sm:table-cell">75</td>
+            <td class="text-center text-ink/70 hidden sm:table-cell">86</td>
+            <td class="text-center text-ink/70 hidden sm:table-cell">5</td>
+            <td class="text-right pr-5 font-display font-700 text-primary text-lg">166</td>
+          </tr>
+          <tr class="border-t border-ink/5">
+            <td class="text-center py-3.5 text-ink/40">5</td>
+            <td class="py-3.5 font-600">Tomáš</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">45</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">95</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">0</td>
+            <td class="text-right pr-5 font-display font-700 text-lg">140</td>
+          </tr>
+          <tr class="border-t border-ink/5">
+            <td class="text-center py-3.5 text-ink/40">6</td>
+            <td class="py-3.5 font-600">Karel</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">30</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">88</td>
+            <td class="text-center text-ink/50 hidden sm:table-cell">0</td>
+            <td class="text-right pr-5 font-display font-700 text-lg">118</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SIDE -->
+    <section class="space-y-6">
+      <div class="bg-white rounded-2xl border border-ink/10 p-5 card-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-display font-700 text-lg">Your picks</h3>
+          <a class="text-xs text-primary font-600 hover:underline">Edit →</a>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="text-base">🏆</span><span class="text-xs text-ink/50 w-20">Champion</span>
+            <img src="https://flagcdn.com/w80/mx.png" class="w-6 rounded ring-1 ring-ink/10" /><span class="text-sm font-600">Mexico</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-base">🐴</span><span class="text-xs text-ink/50 w-20">Dark horse</span>
+            <img src="https://flagcdn.com/w80/no.png" class="w-6 rounded ring-1 ring-ink/10" /><span class="text-sm font-600">Norway</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-base">⭐</span><span class="text-xs text-ink/50 w-20">Top 8</span>
+            <span class="text-sm font-600">8 teams picked</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-ink/10 p-5 card-shadow">
+        <h3 class="font-display font-700 text-lg mb-4">6 players in</h3>
+        <div class="flex -space-x-2 mb-4">
+          <div class="w-9 h-9 rounded-full bg-indigo-500 grid place-items-center text-xs font-700 text-white ring-2 ring-white">P</div>
+          <div class="w-9 h-9 rounded-full bg-emerald-500 grid place-items-center text-xs font-700 text-white ring-2 ring-white">J</div>
+          <div class="w-9 h-9 rounded-full bg-rose-500 grid place-items-center text-xs font-700 text-white ring-2 ring-white">Z</div>
+          <div class="w-9 h-9 rounded-full bg-primary grid place-items-center text-xs font-700 text-white ring-2 ring-white">M</div>
+          <div class="w-9 h-9 rounded-full bg-amber-500 grid place-items-center text-xs font-700 text-white ring-2 ring-white">T</div>
+          <div class="w-9 h-9 rounded-full bg-sky-500 grid place-items-center text-xs font-700 text-white ring-2 ring-white">K</div>
+        </div>
+        <button class="w-full bg-coral-soft text-coral rounded-xl py-2.5 text-sm font-700 hover:brightness-95 transition">Invite friends</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- OPEN MATCHES -->
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display font-700 text-xl">Open for prediction</h2>
+      <a class="text-sm text-primary font-600 hover:underline">All matches →</a>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-2xl border border-ink/10 p-5 card-shadow">
+        <div class="flex items-center justify-between text-xs mb-4">
+          <span class="text-ink/45">Group A · Jun 11, 21:00</span>
+          <span class="px-2 py-0.5 rounded-full bg-primary-soft text-primary font-600">Open</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 flex-1">
+            <img src="https://flagcdn.com/w80/mx.png" class="w-9 rounded ring-1 ring-ink/10" /><span class="font-600 text-sm">Mexico</span>
+          </div>
+          <div class="flex items-center gap-2 font-display tnum">
+            <button class="w-9 h-9 rounded-lg bg-canvas border border-ink/10 font-700 text-lg hover:bg-primary hover:text-white transition">2</button>
+            <span class="text-ink/30">:</span>
+            <button class="w-9 h-9 rounded-lg bg-canvas border border-ink/10 font-700 text-lg hover:bg-primary hover:text-white transition">1</button>
+          </div>
+          <div class="flex items-center gap-3 flex-1 justify-end">
+            <span class="font-600 text-sm">South Africa</span><img src="https://flagcdn.com/w80/za.png" class="w-9 rounded ring-1 ring-ink/10" />
+          </div>
+        </div>
+        <div class="text-center text-[11px] text-emerald-600 mt-3">Saved ✓</div>
+      </div>
+      <div class="bg-white rounded-2xl border border-ink/10 p-5 card-shadow">
+        <div class="flex items-center justify-between text-xs mb-4">
+          <span class="text-ink/45">Group C · Full time</span>
+          <span class="px-2 py-0.5 rounded-full bg-gold/15 text-gold font-700">+7 pts</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 flex-1">
+            <img src="https://flagcdn.com/w80/br.png" class="w-9 rounded ring-1 ring-ink/10" /><span class="font-700 text-sm">Brazil</span>
+          </div>
+          <div class="font-display tnum text-2xl font-700">3 – 1</div>
+          <div class="flex items-center gap-3 flex-1 justify-end">
+            <span class="font-500 text-ink/40 text-sm">Haiti</span><img src="https://flagcdn.com/w80/ht.png" class="w-9 rounded ring-1 ring-ink/10 opacity-60" />
+          </div>
+        </div>
+        <div class="text-center text-[11px] text-ink/40 mt-3">You picked 3–1 · exact score</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="max-w-6xl mx-auto px-5 py-8 text-center text-xs text-ink/40">JPZK 2026 · design preview — Direction B</footer>
+
+<script>
+  const target = new Date('2026-06-11T19:00:00Z').getTime();
+  function tick(){
+    let diff = Math.max(0, target - Date.now());
+    const d = Math.floor(diff/86400000); diff -= d*86400000;
+    const h = Math.floor(diff/3600000); diff -= h*3600000;
+    const m = Math.floor(diff/60000); diff -= m*60000;
+    const s = Math.floor(diff/1000);
+    const p = n => String(n).padStart(2,'0');
+    document.getElementById('d').textContent = p(d);
+    document.getElementById('h').textContent = p(h);
+    document.getElementById('m').textContent = p(m);
+    document.getElementById('s').textContent = p(s);
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>

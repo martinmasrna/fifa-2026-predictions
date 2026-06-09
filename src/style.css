@@ -4,35 +4,102 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-canvas text-ink antialiased;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+  h1, h2, h3, .font-display {
+    font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
   }
 }
 
 @layer components {
+  /* ── Buttons ─────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium
-           transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold
+           transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+           focus-visible:ring-pitch disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
-  }
-  .btn-secondary {
-    @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-brand-500;
-  }
-  .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
-  }
-  .btn-sm {
-    @apply px-3 py-1.5 text-sm;
-  }
+  .btn-primary  { @apply btn bg-pitch text-white hover:bg-pitch-dark; }
+  .btn-gold     { @apply btn bg-gold text-ink hover:brightness-105; }
+  .btn-secondary{ @apply btn bg-white text-ink border border-ink/15 hover:bg-pitch-soft hover:border-pitch/30; }
+  .btn-ghost    { @apply btn text-ink/60 hover:text-ink hover:bg-pitch-soft; }
+  .btn-danger   { @apply btn bg-red-600 text-white hover:bg-red-700; }
+  .btn-sm       { @apply px-3 py-1.5 text-sm rounded-lg; }
+  .btn-lg       { @apply px-6 py-3 text-base; }
+
+  /* ── Surfaces ────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+    @apply bg-white rounded-2xl border border-ink/10 shadow-card;
   }
+
+  /* ── Inputs ──────────────────────────────────────────── */
   .input {
-    @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
-           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent;
+    @apply w-full bg-white border border-ink/15 rounded-xl px-3.5 py-2.5 text-sm text-ink
+           placeholder:text-ink/35
+           focus:outline-none focus:ring-2 focus:ring-pitch/40 focus:border-pitch transition;
   }
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+
+  /* ── Badges / pills ──────────────────────────────────── */
+  .badge       { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .badge-open  { @apply badge bg-pitch-soft text-pitch-dark; }
+  .badge-locked{ @apply badge bg-ink/5 text-ink/45; }
+  .badge-final { @apply badge bg-gold-soft text-gold-dark; }
+  .badge-points{ @apply badge bg-gold-soft text-gold-dark font-bold; }
+
+  /* ── Section heading accent rule ─────────────────────── */
+  .gold-rule { @apply inline-block w-1 h-6 rounded-full bg-gold; }
+
+  /* ── Connected segmented chips (filters) ─────────────── */
+  .seg-chip {
+    @apply px-2.5 py-1 text-xs font-semibold border border-ink/15 -ml-px first:ml-0
+           shrink-0 whitespace-nowrap transition-colors;
   }
+  .seg-chip-on  { @apply bg-pitch text-white border-pitch relative z-10; }
+  .seg-chip-off { @apply bg-white text-ink/60 hover:bg-pitch-soft/50; }
+
+  /* ── Flag "coin" — circular flag with white separator,
+        hairline edge, and a soft drop shadow for depth ─── */
+  .flag-coin {
+    @apply rounded-full object-cover;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 3px rgba(16, 38, 28, 0.12),
+      0 2px 5px -1px rgba(16, 38, 28, 0.28);
+  }
+}
+
+@layer utilities {
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Light "pitch" hero gradient with subtle mowed-grass stripes */
+  .hero-grad {
+    background: linear-gradient(115deg, #0E6E41, #138A52 60%, #1BA862);
+    position: relative;
+    isolation: isolate;
+  }
+  .hero-grad::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 38px, transparent 38px 76px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Ticket motif for a featured fixture. Notch fill tracks the hero green
+     where the ticket sits (lighter, right-hand side of the gradient). */
+  .ticket { position: relative; }
+  .ticket::before,
+  .ticket::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #19A05C;
+  }
+  .ticket::before { left: -9px; }
+  .ticket::after { right: -9px; }
 }

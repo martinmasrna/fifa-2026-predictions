@@ -3,7 +3,7 @@
 // Fill TODO values before go-live (see pre-go-live checklist in the build plan).
 
 export const CONFIG = {
-  poolName: 'JPZK 2026',
+  poolName: 'JPZK',
   ownerEmail: 'martin.masrna@gmail.com',
   joinCodeHash: '$2a$10$FzbIEkYar.YNOTjcAofGnOrACYQxD6cxcFpAnpehj1i3MgkbLyqhy',
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL,

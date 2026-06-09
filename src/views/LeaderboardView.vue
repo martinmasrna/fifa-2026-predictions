@@ -1,80 +1,232 @@
 <template>
-  <div>
+  <div class="space-y-6">
     <!-- Round recap banner -->
-    <RoundRecap v-if="recapRound" :round-key="recapRound" class="mb-6" />
+    <RoundRecap v-if="recapRound" :round-key="recapRound" />
 
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Leaderboard</h1>
-      <span v-if="lb.loading" class="text-sm text-gray-400">Updating…</span>
-    </div>
+    <!-- ══ PRE-KICKOFF STATE ══════════════════════════════ -->
+    <template v-if="!pretournamentLocked">
+      <!-- Hero: countdown + featured opening match -->
+      <section class="hero-grad rounded-3xl p-6 md:p-9 text-white shadow-card overflow-hidden">
+        <div class="grid md:grid-cols-2 gap-8 items-center relative z-10">
+          <div>
+            <div class="flex items-center gap-3 mb-3">
+              <span class="gold-rule"></span>
+              <span class="text-xs font-bold tracking-[0.2em] text-white/70 uppercase">Kickoff in</span>
+            </div>
+            <div class="flex items-end gap-2.5 sm:gap-3 font-display tnum">
+              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none">{{ cd.d }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">DAYS</div></div>
+              <div class="text-4xl sm:text-5xl text-white/30 pb-1.5">:</div>
+              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none">{{ cd.h }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">HRS</div></div>
+              <div class="text-4xl sm:text-5xl text-white/30 pb-1.5">:</div>
+              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none">{{ cd.m }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">MIN</div></div>
+              <div class="text-4xl sm:text-5xl text-white/30 pb-1.5">:</div>
+              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none text-gold">{{ cd.s }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">SEC</div></div>
+            </div>
+            <p class="text-white/75 text-sm mt-5 max-w-sm">Your Top 8, champion and dark horse lock the moment the first whistle blows.</p>
+          </div>
 
-    <div v-if="lb.rankedRows.length === 0 && !lb.loading" class="text-gray-400 text-center py-12">
-      No scores yet — predictions will score when matches complete.
-    </div>
+          <!-- featured opening match ticket -->
+          <div v-if="featuredMatch" class="ticket bg-canvas text-ink rounded-2xl p-5 shadow-2xl">
+            <div class="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.16em] text-ink/45 mb-4 pb-3 border-b border-dashed border-ink/15">
+              <span>Opening match</span><span class="text-ink/25">·</span><span>{{ featuredDate }}</span>
+            </div>
+            <div class="flex items-center justify-center gap-5">
+              <div class="flex flex-col items-center gap-2 w-24">
+                <Flag :team="featuredMatch.team1" size="xl" />
+                <span class="font-bold text-sm text-center">{{ featuredMatch.team1 }}</span>
+              </div>
+              <span class="font-display font-extrabold text-xl text-ink/30">VS</span>
+              <div class="flex flex-col items-center gap-2 w-24">
+                <Flag :team="featuredMatch.team2" size="xl" />
+                <span class="font-bold text-sm text-center">{{ featuredMatch.team2 }}</span>
+              </div>
+            </div>
+            <RouterLink to="/matches" class="mt-5 btn-primary w-full">Predict matches →</RouterLink>
+          </div>
+        </div>
+      </section>
 
-    <div v-else class="card overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th class="text-center px-4 py-3 text-gray-500 font-medium w-10">#</th>
-            <th class="text-left px-4 py-3 text-gray-500 font-medium">Player</th>
-            <th class="text-center px-3 py-3 text-gray-500 font-medium hidden md:table-cell">Pre-Tournament</th>
-            <th class="text-center px-3 py-3 text-gray-500 font-medium hidden sm:table-cell">Group Stage</th>
-            <th class="text-center px-3 py-3 text-gray-500 font-medium hidden sm:table-cell">Knockout</th>
-            <th class="text-center px-4 py-3 text-gray-500 font-medium">Total</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr
-            v-for="row in lb.rankedRows"
-            :key="row.user_id"
-            class="transition-colors"
-            :class="row.user_id === auth.session?.user.id
-              ? 'bg-brand-50 font-medium border-l-4 border-brand-500'
-              : 'hover:bg-gray-50 border-l-4 border-transparent'"
-          >
-            <td class="px-4 py-3 font-bold text-center">
-              <span v-if="row.rank === 1">🥇</span>
-              <span v-else-if="row.rank === 2">🥈</span>
-              <span v-else-if="row.rank === 3">🥉</span>
-              <span v-else class="text-gray-500">{{ row.rank }}</span>
-            </td>
-            <td class="px-4 py-3">
-              {{ row.display_name }}
-              <span v-if="row.user_id === auth.session?.user.id" class="ml-1 text-xs text-brand-600">(you)</span>
-            </td>
-            <td class="px-3 py-3 text-center text-gray-500 hidden md:table-cell">{{ row.pretournament_pts }}</td>
-            <td class="px-3 py-3 text-center text-gray-500 hidden sm:table-cell">{{ row.group_pts }}</td>
-            <td class="px-3 py-3 text-center text-gray-500 hidden sm:table-cell">{{ row.knockout_pts }}</td>
-            <td class="px-4 py-3 text-center font-bold text-brand-700">{{ row.grand_total }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- Your picks + players -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- your picks -->
+        <div class="lg:col-span-2 card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-display font-bold text-lg">Your pre-tournament picks</h2>
+            <RouterLink to="/onboarding" class="text-xs text-pitch font-semibold hover:underline">
+              {{ picksDone === 3 ? 'Edit →' : 'Finish →' }}
+            </RouterLink>
+          </div>
+          <div v-if="picksDone === 0" class="text-sm text-ink/50 py-4 text-center">
+            You haven't made your picks yet.
+            <RouterLink to="/onboarding" class="text-pitch font-semibold hover:underline">Start now →</RouterLink>
+          </div>
+          <div v-else class="grid sm:grid-cols-3 gap-3">
+            <div class="rounded-xl bg-pitch-soft/50 p-3.5">
+              <div class="text-xs font-bold uppercase tracking-wide text-ink/45 mb-2">Top 8</div>
+              <div v-if="pt?.top8?.length" class="flex -space-x-2">
+                <img
+                  v-for="t in pt.top8" :key="t"
+                  :src="flagUrl(t, 80)" :alt="t" :title="t"
+                  class="w-8 h-8 flag-coin"
+                />
+              </div>
+              <span v-else class="text-ink/30 text-sm">—</span>
+            </div>
+            <div class="rounded-xl bg-gold-soft/60 p-3.5">
+              <div class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1.5">Champion</div>
+              <div class="flex items-center gap-2.5">
+                <img v-if="pt?.winner" :src="flagUrl(pt.winner, 80)" :alt="pt.winner" class="w-9 h-9 flag-coin" />
+                <span class="font-display font-bold text-sm truncate">{{ pt?.winner ?? '—' }}</span>
+              </div>
+            </div>
+            <div class="rounded-xl bg-purple-50 p-3.5">
+              <div class="text-xs font-bold uppercase tracking-wide text-purple-700 mb-1.5">Dark horse</div>
+              <div class="flex items-center gap-2.5">
+                <img v-if="pt?.dark_horse" :src="flagUrl(pt.dark_horse, 80)" :alt="pt.dark_horse" class="w-9 h-9 flag-coin" />
+                <span class="font-display font-bold text-sm truncate">{{ pt?.dark_horse ?? '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <p class="text-xs text-gray-400 mt-3 text-right">
-      Leaderboard updates live as results come in.
-    </p>
+        <!-- players joined -->
+        <div class="card p-5">
+          <h2 class="font-display font-bold text-lg mb-4">{{ playerCount }} {{ playerCount === 1 ? 'player' : 'players' }} in</h2>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <div
+              v-for="(p, i) in rankedRows.slice(0, 12)"
+              :key="p.user_id"
+              class="w-9 h-9 rounded-full grid place-items-center text-xs font-bold text-white uppercase ring-2 ring-white"
+              :class="avatarColor(i)"
+              :title="p.display_name"
+            >{{ p.display_name?.[0] ?? '?' }}</div>
+          </div>
+          <p class="text-xs text-ink/45">Share the join code to get more friends in before kickoff.</p>
+        </div>
+      </div>
+    </template>
+
+    <!-- ══ LIVE STATE — standings board ═══════════════════ -->
+    <template v-else>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Leaderboard</h1></div>
+        <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
+      </div>
+
+      <div v-if="rankedRows.length === 0 && !lb.loading" class="text-ink/40 text-center py-16 card">
+        No scores yet — predictions will score as matches complete.
+      </div>
+
+      <div v-else class="card overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="text-[11px] uppercase tracking-wider text-ink/40 border-b border-ink/10">
+            <tr>
+              <th class="text-center py-3 w-12">#</th>
+              <th class="text-left py-3 px-1">Player</th>
+              <th class="text-center py-3 hidden md:table-cell font-medium">Pre</th>
+              <th class="text-center py-3 hidden sm:table-cell font-medium">Group</th>
+              <th class="text-center py-3 hidden sm:table-cell font-medium">KO</th>
+              <th class="text-right py-3 pr-5">Total</th>
+            </tr>
+          </thead>
+          <tbody class="tnum">
+            <tr
+              v-for="row in rankedRows"
+              :key="row.user_id"
+              class="border-t border-ink/5 transition-colors"
+              :class="isMe(row) ? 'bg-pitch-soft' : 'hover:bg-pitch-soft/30'"
+            >
+              <td class="text-center py-3.5 relative">
+                <span v-if="isMe(row)" class="absolute left-0 top-0 bottom-0 w-1 bg-pitch"></span>
+                <span v-if="row.rank === 1" class="text-xl">🥇</span>
+                <span v-else-if="row.rank === 2" class="text-xl">🥈</span>
+                <span v-else-if="row.rank === 3" class="text-xl">🥉</span>
+                <span v-else class="text-ink/40 font-semibold">{{ row.rank }}</span>
+              </td>
+              <td class="py-3.5 px-1 font-semibold" :class="isMe(row) ? 'text-pitch-dark' : ''">
+                {{ row.display_name }}
+                <span v-if="isMe(row)" class="text-[11px] font-medium text-pitch">(you)</span>
+              </td>
+              <td class="text-center py-3.5 text-ink/50 hidden md:table-cell">{{ row.pretournament_pts }}</td>
+              <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.group_pts }}</td>
+              <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.knockout_pts }}</td>
+              <td class="text-right py-3.5 pr-5 font-display font-extrabold text-base"
+                  :class="row.rank === 1 ? 'text-gold-dark' : isMe(row) ? 'text-pitch-dark' : 'text-ink'">
+                {{ row.grand_total }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-ink/40 text-right">Updates live as results come in.</p>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useLeaderboardStore } from '../stores/leaderboard.js'
 import { useAuthStore } from '../stores/auth.js'
+import { useMatchesStore } from '../stores/matches.js'
+import { MATCH_1_KICKOFF } from '../config.js'
 import RoundRecap from '../components/RoundRecap.vue'
+import Flag from '../components/Flag.vue'
+import { flagUrl } from '../lib/flags.js'
 
 const lb = useLeaderboardStore()
 const auth = useAuthStore()
+const matchesStore = useMatchesStore()
 const recapRound = ref(null)
 
+const rankedRows = computed(() => lb.rankedRows)
+const playerCount = computed(() => lb.rankedRows.length)
+const pt = computed(() => matchesStore.pretournament)
+const picksDone = computed(() => {
+  const p = pt.value
+  if (!p) return 0
+  return (p.top8?.length > 0 ? 1 : 0) + (p.winner ? 1 : 0) + (p.dark_horse ? 1 : 0)
+})
+
+const isMe = (row) => row.user_id === auth.session?.user.id
+
+const AVATAR_COLORS = ['bg-pitch', 'bg-emerald-600', 'bg-rose-500', 'bg-gold', 'bg-amber-600', 'bg-sky-600', 'bg-indigo-500', 'bg-teal-600']
+const avatarColor = (i) => AVATAR_COLORS[i % AVATAR_COLORS.length]
+
+// ── Countdown ──────────────────────────────────────────
+const now = ref(Date.now())
+const target = new Date(MATCH_1_KICKOFF).getTime()
+const pretournamentLocked = computed(() => now.value >= target)
+const cd = computed(() => {
+  let diff = Math.max(0, target - now.value)
+  const d = Math.floor(diff / 86400000); diff -= d * 86400000
+  const h = Math.floor(diff / 3600000); diff -= h * 3600000
+  const m = Math.floor(diff / 60000); diff -= m * 60000
+  const s = Math.floor(diff / 1000)
+  const p = (n) => String(n).padStart(2, '0')
+  return { d: p(d), h: p(h), m: p(m), s: p(s) }
+})
+
+const featuredMatch = computed(() =>
+  matchesStore.matchMap.get(1) ?? matchesStore.matches[0] ?? null
+)
+const featuredDate = computed(() => {
+  if (!featuredMatch.value) return ''
+  return new Date(featuredMatch.value.kickoff_utc).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague',
+  })
+})
+
+let timer = null
 onMounted(async () => {
+  timer = setInterval(() => { now.value = Date.now() }, 1000)
   await lb.load()
   lb.subscribeRealtime()
   recapRound.value = await lb.loadLatestCompletedRound()
 })
-
 onUnmounted(() => {
+  clearInterval(timer)
   lb.unsubscribeRealtime()
 })
 </script>

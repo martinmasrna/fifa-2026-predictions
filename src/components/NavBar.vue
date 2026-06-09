@@ -1,11 +1,14 @@
 <template>
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-20">
-    <div class="max-w-4xl mx-auto px-4">
-      <div class="flex items-center justify-between h-14">
-        <RouterLink to="/" class="font-bold text-brand-700 text-lg">⚽ {{ poolName }}</RouterLink>
+  <nav class="sticky top-0 z-30 bg-canvas/85 backdrop-blur border-b border-ink/10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-5">
+      <div class="flex items-center justify-between h-16">
+        <RouterLink to="/" class="flex items-center gap-2.5 shrink-0">
+          <span class="w-8 h-8 rounded-lg bg-pitch grid place-items-center text-white text-sm">⚽</span>
+          <span class="font-display font-extrabold text-xl tracking-tight">{{ poolName }}</span>
+        </RouterLink>
 
         <!-- Desktop nav -->
-        <div class="hidden sm:flex items-center gap-1">
+        <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
           <NavLink to="/standings">Standings</NavLink>
@@ -15,13 +18,16 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <span class="hidden sm:block text-sm text-gray-500">{{ auth.member?.display_name }}</span>
-          <button @click="auth.signOut()" class="text-sm text-gray-500 hover:text-gray-700">Sign out</button>
+          <span class="hidden sm:block text-sm text-ink/55">{{ auth.member?.display_name }}</span>
+          <div class="w-8 h-8 rounded-full bg-pitch grid place-items-center text-white text-sm font-bold uppercase">
+            {{ initial }}
+          </div>
+          <button @click="signOut" class="text-sm text-ink/45 hover:text-ink transition">Sign out</button>
         </div>
       </div>
 
       <!-- Mobile nav -->
-      <div class="sm:hidden flex gap-1 pb-2 overflow-x-auto">
+      <div class="md:hidden flex gap-1 pb-2 -mx-1 px-1 overflow-x-auto text-sm font-semibold">
         <NavLink to="/">Leaderboard</NavLink>
         <NavLink to="/matches">Matches</NavLink>
         <NavLink to="/standings">Standings</NavLink>
@@ -34,26 +40,34 @@
 </template>
 
 <script setup>
-import { RouterLink, useLink } from 'vue-router'
+import { RouterLink, useLink, useRouter } from 'vue-router'
 import { defineComponent, h, computed } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { CONFIG } from '../config.js'
 
 const auth = useAuthStore()
+const router = useRouter()
 const poolName = CONFIG.poolName
 
-// Inline NavLink component
+async function signOut() {
+  await auth.signOut()
+  router.push('/auth')
+}
+
+const initial = computed(() => (auth.member?.display_name?.trim()?.[0] ?? '?'))
+
 const NavLink = defineComponent({
   props: { to: String },
   setup(props, { slots }) {
-    const { isActive } = useLink({ to: computed(() => props.to) })
+    const { isActive, isExactActive } = useLink({ to: computed(() => props.to) })
+    const active = computed(() => (props.to === '/' ? isExactActive.value : isActive.value))
     return () => h(RouterLink, {
       to: props.to,
       class: [
-        'px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
-        isActive.value
-          ? 'bg-brand-50 text-brand-700'
-          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+        'px-3.5 py-2 rounded-full whitespace-nowrap transition-colors',
+        active.value
+          ? 'bg-pitch text-white'
+          : 'text-ink/55 hover:text-ink hover:bg-pitch-soft',
       ],
     }, slots)
   },

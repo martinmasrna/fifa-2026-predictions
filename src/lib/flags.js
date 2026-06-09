@@ -49,8 +49,10 @@ const ISO = {
   'Uzbekistan': 'uz',
 }
 
-export function flagUrl(teamName) {
+export function flagUrl(teamName, width = 80) {
   const code = ISO[teamName]
   if (!code) return null
-  return `https://flagcdn.com/w80/${code}.png`
+  // flagcdn supports a fixed set of widths; snap to the nearest sensible one.
+  const w = width <= 80 ? 80 : width <= 160 ? 160 : 320
+  return `https://flagcdn.com/w${w}/${code}.png`
 }

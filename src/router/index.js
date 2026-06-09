@@ -27,7 +27,13 @@ router.beforeEach(async (to) => {
   // Wait for initial auth check
   if (!auth.initialized) await auth.init()
 
-  if (to.meta.public) return true
+  if (to.meta.public) {
+    // A fully-onboarded member has no reason to sit on the auth/join pages.
+    if (auth.session && auth.member && (to.name === 'auth' || to.name === 'join')) {
+      return { name: 'leaderboard' }
+    }
+    return true
+  }
 
   if (!auth.session) return { name: 'auth' }
 

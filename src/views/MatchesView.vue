@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Matches</h1>
-      <div class="flex gap-2">
+    <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
+      <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Matches</h1></div>
+      <div class="flex gap-1.5">
         <button
           v-for="f in filters"
           :key="f.id"
@@ -14,66 +14,60 @@
     </div>
 
     <!-- Group + Matchday filters -->
-    <div class="mb-6 grid items-center" style="grid-template-columns: max-content 1fr; column-gap: 0.75rem; row-gap: 0.5rem">
-
-      <!-- Group row -->
-      <span class="text-xs font-medium text-gray-400">Group</span>
+    <div class="mb-6 grid items-center gap-x-3 gap-y-2.5" style="grid-template-columns: max-content 1fr">
+      <span class="text-xs font-semibold text-ink/40">Group</span>
       <div class="flex overflow-x-auto pb-0.5">
-          <button
-            @click="activeGroup = null"
-            class="px-2 py-1 text-xs font-medium border border-gray-300 -ml-px first:ml-0 shrink-0 transition-colors whitespace-nowrap"
-            :class="activeGroup === null ? 'bg-brand-600 text-white border-brand-600 relative z-10' : 'bg-white text-gray-600 hover:bg-gray-50'"
-          >All</button>
-          <button
-            v-for="g in groups" :key="g"
-            @click="activeGroup = g"
-            class="px-2 py-1 text-xs font-medium border border-gray-300 -ml-px shrink-0 transition-colors whitespace-nowrap"
-            :class="activeGroup === g ? 'bg-brand-600 text-white border-brand-600 relative z-10' : 'bg-white text-gray-600 hover:bg-gray-50'"
-          >{{ g }}</button>
-          <button
-            @click="activeGroup = 'knockout'"
-            class="px-2 py-1 text-xs font-medium border border-gray-300 -ml-px shrink-0 transition-colors whitespace-nowrap"
-            :class="activeGroup === 'knockout' ? 'bg-brand-600 text-white border-brand-600 relative z-10' : 'bg-white text-gray-600 hover:bg-gray-50'"
-          >KO</button>
-        </div>
+        <button
+          @click="activeGroup = null"
+          class="seg-chip first:rounded-l-lg"
+          :class="activeGroup === null ? 'seg-chip-on' : 'seg-chip-off'"
+        >All</button>
+        <button
+          v-for="g in groups" :key="g"
+          @click="activeGroup = g"
+          class="seg-chip"
+          :class="activeGroup === g ? 'seg-chip-on' : 'seg-chip-off'"
+        >{{ g }}</button>
+        <button
+          @click="activeGroup = 'knockout'"
+          class="seg-chip last:rounded-r-lg"
+          :class="activeGroup === 'knockout' ? 'seg-chip-on' : 'seg-chip-off'"
+        >KO</button>
+      </div>
 
-      <!-- Matchday row -->
-      <span class="text-xs font-medium text-gray-400">Matchday</span>
+      <span class="text-xs font-semibold text-ink/40">Matchday</span>
       <div class="flex overflow-x-auto pb-0.5">
-          <button
-            @click="activeMatchday = null"
-            class="px-2 py-1 text-xs font-medium border border-gray-300 -ml-px first:ml-0 shrink-0 transition-colors whitespace-nowrap"
-            :class="activeMatchday === null ? 'bg-brand-600 text-white border-brand-600 relative z-10' : 'bg-white text-gray-600 hover:bg-gray-50'"
-          >All</button>
-          <button
-            v-for="md in matchdays" :key="md"
-            @click="activeMatchday = md"
-            class="px-2 py-1 text-xs font-medium border border-gray-300 -ml-px shrink-0 transition-colors whitespace-nowrap"
-            :class="activeMatchday === md ? 'bg-brand-600 text-white border-brand-600 relative z-10' : 'bg-white text-gray-600 hover:bg-gray-50'"
-          >{{ abbreviate(md) }}</button>
-        </div>
-
+        <button
+          @click="activeMatchday = null"
+          class="seg-chip first:rounded-l-lg"
+          :class="activeMatchday === null ? 'seg-chip-on' : 'seg-chip-off'"
+        >All</button>
+        <button
+          v-for="md in matchdays" :key="md"
+          @click="activeMatchday = md"
+          class="seg-chip"
+          :class="activeMatchday === md ? 'seg-chip-on' : 'seg-chip-off'"
+        >{{ abbreviate(md) }}</button>
+      </div>
     </div>
 
     <!-- Match list -->
-    <div v-if="visibleMatches.length === 0" class="text-center text-gray-400 py-12">
-      No matches to show
+    <div v-if="visibleMatches.length === 0" class="text-center text-ink/40 py-16 card">
+      No matches to show.
     </div>
 
     <template v-else>
-      <!-- Group by round_label -->
       <div v-for="group in groupedByRound" :key="group.round" class="mb-8">
-        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          {{ group.round }} ({{ group.date }})
+        <h2 class="text-xs font-bold text-ink/45 uppercase tracking-wider mb-3">
+          {{ group.round }} <span class="text-ink/30">· {{ group.date }}</span>
         </h2>
-        <div class="space-y-3">
+        <div class="grid md:grid-cols-2 gap-3">
           <MatchCard
             v-for="match in group.matches"
             :key="match.match_no"
             :match="match"
             :prediction="matchesStore.predMap.get(match.match_no)"
             :score="matchesStore.scoreMap.get(match.match_no) ?? null"
-            @save="savePrediction"
           />
         </div>
       </div>
@@ -115,7 +109,6 @@ const groups = computed(() => {
   return [...gs].sort()
 })
 
-// Round labels in chronological order (matches are pre-sorted by kickoff)
 const matchdays = computed(() => {
   const seen = new Set()
   const labels = []
@@ -132,26 +125,14 @@ const now = ref(new Date())
 
 const visibleMatches = computed(() => {
   let ms = matchesStore.matches
-
-  if (activeGroup.value === 'knockout') {
-    ms = ms.filter(m => m.stage !== 'group')
-  } else if (activeGroup.value) {
-    ms = ms.filter(m => m.group === activeGroup.value)
-  }
-
-  if (activeMatchday.value) {
-    ms = ms.filter(m => m.round_label === activeMatchday.value)
-  }
+  if (activeGroup.value === 'knockout') ms = ms.filter(m => m.stage !== 'group')
+  else if (activeGroup.value) ms = ms.filter(m => m.group === activeGroup.value)
+  if (activeMatchday.value) ms = ms.filter(m => m.round_label === activeMatchday.value)
 
   const n = now.value
-  if (activeFilter.value === 'open') {
-    ms = ms.filter(m => new Date(m.kickoff_utc) > n && m.status !== 'final')
-  } else if (activeFilter.value === 'upcoming') {
-    ms = ms.filter(m => new Date(m.kickoff_utc) > n)
-  } else if (activeFilter.value === 'results') {
-    ms = ms.filter(m => m.status === 'final')
-  }
-
+  if (activeFilter.value === 'open') ms = ms.filter(m => new Date(m.kickoff_utc) > n && m.status !== 'final')
+  else if (activeFilter.value === 'upcoming') ms = ms.filter(m => new Date(m.kickoff_utc) > n)
+  else if (activeFilter.value === 'results') ms = ms.filter(m => m.status === 'final')
   return ms
 })
 
@@ -168,10 +149,6 @@ const groupedByRound = computed(() => {
     return { round, matches, date }
   })
 })
-
-async function savePrediction({ matchNo, pred1, pred2, predAdvancer }) {
-  await matchesStore.savePrediction(matchNo, pred1, pred2, predAdvancer)
-}
 
 let nowTimer = null
 onMounted(() => { nowTimer = setInterval(() => { now.value = new Date() }, 30_000) })

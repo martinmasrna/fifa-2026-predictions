@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Knockout Bracket</h1>
+    <div class="flex items-center gap-3 mb-6"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Knockout bracket</h1></div>
 
     <!-- Open for prediction -->
     <div v-if="openMatches.length" class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Open for prediction</h2>
-      <div class="space-y-3">
+      <h2 class="text-xs font-bold text-ink/45 uppercase tracking-wider mb-3">Open for prediction</h2>
+      <div class="grid md:grid-cols-2 gap-3">
         <MatchCard
           v-for="m in openMatches"
           :key="m.match_no"
@@ -18,13 +18,13 @@
 
     <!-- Bracket -->
     <div class="overflow-x-auto pb-4">
-      <div class="relative select-none" :style="`width:${TOTAL_W}px; height:${TOTAL_H}px`">
+      <div class="relative select-none mx-auto" :style="`width:${TOTAL_W}px; height:${TOTAL_H}px`">
 
         <!-- Round labels -->
         <div
           v-for="col in COLUMNS"
           :key="col.label"
-          class="absolute text-xs font-semibold text-gray-400 uppercase tracking-wider text-center"
+          class="absolute text-xs font-bold text-ink/45 uppercase tracking-wider text-center"
           :style="`left:${col.x}px; top:0; width:${CARD_W}px`"
         >{{ col.label }}</div>
 
@@ -39,7 +39,7 @@
             :key="i"
             :d="d"
             fill="none"
-            stroke="#e5e7eb"
+            stroke="rgba(16,38,28,0.16)"
             stroke-width="1.5"
             stroke-linecap="round"
           />
@@ -57,7 +57,7 @@
 
         <!-- Third place -->
         <div
-          class="absolute text-xs font-semibold text-gray-400 uppercase tracking-wider text-center"
+          class="absolute text-xs font-bold text-ink/45 uppercase tracking-wider text-center"
           :style="`left:${COLUMNS[3].x}px; top:${THIRD_LABEL_Y}px; width:${CARD_W}px`"
         >3rd place</div>
         <div
