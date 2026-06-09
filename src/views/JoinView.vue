@@ -26,6 +26,7 @@
           :disabled="loading"
         />
 
+
         <button type="submit" class="btn-primary w-full" :disabled="loading || !joinCode || !displayName.trim()">
           {{ loading ? 'Joining…' : 'Join pool' }}
         </button>
@@ -48,7 +49,7 @@ const matchesStore = useMatchesStore()
 const router = useRouter()
 
 const joinCode = ref('')
-const displayName = ref('')
+const displayName = ref(auth.pendingDisplayName)
 const loading = ref(false)
 const error = ref('')
 
@@ -57,6 +58,7 @@ async function submit() {
   loading.value = true
   try {
     await auth.join(joinCode.value, displayName.value)
+    auth.pendingDisplayName = ''
     await matchesStore.loadMyPredictions()
 
     const locked = new Date() >= new Date(MATCH_1_KICKOFF)

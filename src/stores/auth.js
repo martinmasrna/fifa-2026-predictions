@@ -48,14 +48,17 @@ export const useAuthStore = defineStore('auth', () => {
     member.value = data ?? null
   }
 
-  async function signInWithEmail(email) {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin + window.location.pathname,
-      },
-    })
+  const pendingDisplayName = ref('')
+
+  async function signIn(email, password) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+  }
+
+  async function signUp(email, password, displayName) {
+    const { error } = await supabase.auth.signUp({ email, password })
+    if (error) throw error
+    pendingDisplayName.value = displayName
   }
 
   async function signOut() {
@@ -90,6 +93,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     session, member, initialized, isOwner, pretournamentLocked,
-    init, signInWithEmail, signOut, join, rotateMemberRow,
+    init, signIn, signUp, signOut, join, rotateMemberRow, pendingDisplayName,
   }
 })
