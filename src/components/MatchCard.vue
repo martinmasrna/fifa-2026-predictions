@@ -89,7 +89,10 @@
       <span v-else-if="!locked && justSaved" class="text-[11px] text-pitch font-semibold">Saved ✓</span>
     </div>
 
-    <p v-if="saveError" class="text-xs text-red-500 text-center mt-1">{{ saveError }}</p>
+    <p v-if="lockedByServer" class="text-xs text-gold-dark text-center mt-1">
+      This match has already kicked off — predictions are locked.
+    </p>
+    <p v-else-if="saveError" class="text-xs text-red-500 text-center mt-1">{{ saveError }}</p>
   </div>
 </template>
 
@@ -100,6 +103,7 @@ import GoalStepper from './GoalStepper.vue'
 import AdvancerToggle from './AdvancerToggle.vue'
 import Flag from './Flag.vue'
 import { useMatchesStore } from '../stores/matches.js'
+import { serverNow } from '../lib/serverTime.js'
 
 const props = defineProps({
   match: { type: Object, required: true },
@@ -110,9 +114,10 @@ const props = defineProps({
 const matchesStore = useMatchesStore()
 const saveError = ref('')
 const justSaved = ref(false)
+const lockedByServer = ref(false) // set if a save is rejected because kickoff has passed
 
-const now = ref(new Date())
-const locked = computed(() => now.value >= new Date(props.match.kickoff_utc))
+const now = ref(new Date(serverNow()))
+const locked = computed(() => lockedByServer.value || now.value >= new Date(props.match.kickoff_utc))
 const isKnockout = computed(() => props.match.stage !== 'group')
 
 const statusLabel = computed(() => {
@@ -162,7 +167,7 @@ watch([local1, local2, localAdvancer], () => {
   saveTimer = setTimeout(save, 350)
 })
 
-onMounted(() => { clockTimer = setInterval(() => { now.value = new Date() }, 60_000) })
+onMounted(() => { clockTimer = setInterval(() => { now.value = new Date(serverNow()) }, 60_000) })
 onUnmounted(() => { clearTimeout(saveTimer); clearTimeout(savedTimer); clearInterval(clockTimer) })
 
 async function save() {
@@ -173,8 +178,18 @@ async function save() {
     clearTimeout(savedTimer)
     savedTimer = setTimeout(() => { justSaved.value = false }, 2000)
   } catch (e) {
-    saveError.value = e.message
+    // RLS rejects writes once kickoff has passed (server clock). Treat that
+    // as a lock rather than an error and re-lock the card.
+    if (isLockError(e)) lockedByServer.value = true
+    else saveError.value = e.message
   }
+}
+
+// 42501 = RLS WITH CHECK violation (insert after kickoff);
+// PGRST116 = update matched 0 rows because RLS USING hid the row.
+function isLockError(e) {
+  return e?.code === '42501' || e?.code === 'PGRST116' ||
+    /row-level security|violates/i.test(e?.message ?? '')
 }
 
 // Visual emphasis: winner green, loser dimmed (only after final)

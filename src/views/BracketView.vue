@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="flex items-center gap-3 mb-6"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Knockout bracket</h1></div>
-
     <!-- Open for prediction -->
     <div v-if="openMatches.length" class="mb-8">
       <h2 class="text-xs font-bold text-ink/45 uppercase tracking-wider mb-3">Open for prediction</h2>

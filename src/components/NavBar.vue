@@ -11,18 +11,21 @@
         <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
-          <NavLink to="/standings">Standings</NavLink>
-          <NavLink to="/bracket">Bracket</NavLink>
+          <NavLink to="/tournament">Tournament</NavLink>
           <NavLink to="/my-picks">My Predictions</NavLink>
           <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
         </div>
 
         <div class="flex items-center gap-3">
-          <span class="hidden sm:block text-sm text-ink/55">{{ auth.member?.display_name }}</span>
-          <div class="w-8 h-8 rounded-full bg-pitch grid place-items-center text-white text-sm font-bold uppercase">
-            {{ initial }}
-          </div>
-          <button @click="signOut" class="text-sm text-ink/45 hover:text-ink transition">Sign out</button>
+          <span class="hidden sm:block text-sm font-medium text-ink/80">{{ auth.member?.display_name }}</span>
+          <span class="hidden sm:block w-px h-5 bg-ink/15"></span>
+          <button
+            @click="signOut"
+            class="flex items-center justify-center text-ink/40 hover:text-ink hover:bg-pitch-soft rounded-lg p-1.5 transition-colors"
+            title="Sign out" aria-label="Sign out"
+          >
+            <Icon name="logout" :size="18" />
+          </button>
         </div>
       </div>
 
@@ -30,8 +33,7 @@
       <div class="md:hidden flex gap-1 pb-2 -mx-1 px-1 overflow-x-auto text-sm font-semibold">
         <NavLink to="/">Leaderboard</NavLink>
         <NavLink to="/matches">Matches</NavLink>
-        <NavLink to="/standings">Standings</NavLink>
-        <NavLink to="/bracket">Bracket</NavLink>
+        <NavLink to="/tournament">Tournament</NavLink>
         <NavLink to="/my-picks">My Predictions</NavLink>
         <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
       </div>
@@ -44,6 +46,7 @@ import { RouterLink, useLink, useRouter } from 'vue-router'
 import { defineComponent, h, computed } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { CONFIG } from '../config.js'
+import Icon from './Icon.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -53,8 +56,6 @@ async function signOut() {
   await auth.signOut()
   router.push('/auth')
 }
-
-const initial = computed(() => (auth.member?.display_name?.trim()?.[0] ?? '?'))
 
 const NavLink = defineComponent({
   props: { to: String },

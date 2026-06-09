@@ -20,7 +20,7 @@
               <div class="text-4xl sm:text-5xl text-white/30 pb-1.5">:</div>
               <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none">{{ cd.m }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">MIN</div></div>
               <div class="text-4xl sm:text-5xl text-white/30 pb-1.5">:</div>
-              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none text-gold">{{ cd.s }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">SEC</div></div>
+              <div class="text-center"><div class="text-5xl sm:text-6xl font-extrabold leading-none">{{ cd.s }}</div><div class="text-[10px] text-white/55 mt-1.5 tracking-widest">SEC</div></div>
             </div>
             <p class="text-white/75 text-sm mt-5 max-w-sm">Your Top 8, champion and dark horse lock the moment the first whistle blows.</p>
           </div>
@@ -41,7 +41,7 @@
                 <span class="font-bold text-sm text-center">{{ featuredMatch.team2 }}</span>
               </div>
             </div>
-            <RouterLink to="/matches" class="mt-5 btn-primary w-full">Predict matches →</RouterLink>
+            <RouterLink to="/matches" class="mt-5 btn-gold w-full">Predict matches →</RouterLink>
           </div>
         </div>
       </section>
@@ -113,8 +113,18 @@
         <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
       </div>
 
-      <div v-if="rankedRows.length === 0 && !lb.loading" class="text-ink/40 text-center py-16 card">
-        No scores yet — predictions will score as matches complete.
+      <div v-if="lb.loading && rankedRows.length === 0" class="card p-4 space-y-3.5">
+        <div v-for="n in 6" :key="n" class="flex items-center gap-3">
+          <div class="skeleton w-6 h-6 rounded-full"></div>
+          <div class="skeleton h-4 flex-1 max-w-[10rem]"></div>
+          <div class="skeleton h-4 w-8 ml-auto"></div>
+        </div>
+      </div>
+
+      <div v-else-if="rankedRows.length === 0" class="empty">
+        <span class="empty-icon"><Icon name="trophy" :size="22" /></span>
+        <p class="font-display font-bold text-ink/70">No scores yet</p>
+        <p class="text-sm">Predictions start scoring the moment matches go final.</p>
       </div>
 
       <div v-else class="card overflow-hidden">
@@ -171,8 +181,10 @@ import { useLeaderboardStore } from '../stores/leaderboard.js'
 import { useAuthStore } from '../stores/auth.js'
 import { useMatchesStore } from '../stores/matches.js'
 import { MATCH_1_KICKOFF } from '../config.js'
+import { serverNow } from '../lib/serverTime.js'
 import RoundRecap from '../components/RoundRecap.vue'
 import Flag from '../components/Flag.vue'
+import Icon from '../components/Icon.vue'
 import { flagUrl } from '../lib/flags.js'
 
 const lb = useLeaderboardStore()
@@ -195,7 +207,7 @@ const AVATAR_COLORS = ['bg-pitch', 'bg-emerald-600', 'bg-rose-500', 'bg-gold', '
 const avatarColor = (i) => AVATAR_COLORS[i % AVATAR_COLORS.length]
 
 // ── Countdown ──────────────────────────────────────────
-const now = ref(Date.now())
+const now = ref(serverNow())
 const target = new Date(MATCH_1_KICKOFF).getTime()
 const pretournamentLocked = computed(() => now.value >= target)
 const cd = computed(() => {
@@ -220,7 +232,7 @@ const featuredDate = computed(() => {
 
 let timer = null
 onMounted(async () => {
-  timer = setInterval(() => { now.value = Date.now() }, 1000)
+  timer = setInterval(() => { now.value = serverNow() }, 1000)
   await lb.load()
   lb.subscribeRealtime()
   recapRound.value = await lb.loadLatestCompletedRound()

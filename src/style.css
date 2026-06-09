@@ -66,10 +66,49 @@
       0 0 0 3px rgba(16, 38, 28, 0.12),
       0 2px 5px -1px rgba(16, 38, 28, 0.28);
   }
+
+  /* ── Loading skeleton — soft block with a sweeping shimmer ── */
+  .skeleton {
+    @apply bg-ink/[0.07] rounded-md relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  /* ── Empty state — centered icon + copy in a dashed card ──── */
+  .empty {
+    @apply card border-dashed flex flex-col items-center justify-center
+           text-center text-ink/45 px-6 py-14 gap-3;
+  }
+  .empty-icon {
+    @apply w-12 h-12 rounded-full bg-pitch-soft text-pitch grid place-items-center;
+  }
 }
 
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Sweeping highlight for .skeleton blocks */
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  /* Route view transition — gentle fade + lift, quick leave */
+  .page-enter-active { transition: opacity 0.28s ease, transform 0.28s ease; }
+  .page-enter-from   { opacity: 0; transform: translateY(6px); }
+  .page-leave-active { transition: opacity 0.12s ease; }
+  .page-leave-to     { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-enter-active, .page-leave-active { transition: none; }
+    .skeleton::after { animation: none; }
+    .animate-fade-in, .animate-pop { animation: none; }
+  }
 
   /* Light "pitch" hero gradient with subtle mowed-grass stripes */
   .hero-grad {
@@ -81,7 +120,8 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 38px, transparent 38px 76px);
+    /* Subtle mowed-pitch banding — soft and wide so it reads as turf, not a barcode */
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px);
     pointer-events: none;
     z-index: -1;
   }

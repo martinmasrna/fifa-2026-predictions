@@ -1,14 +1,14 @@
 {
-  "_comment": "Hand-picked teams with a story worth following — players choose one to root for. Scoring depends only on how far the team advances (see scoring.js), not on which team is picked.",
+  "_comment": "Hand-picked teams with a story worth following — players choose one to root for. Scoring depends only on how far the team advances (see scoring.js), not on which team is picked. Listed alphabetically; display order follows this file.",
   "pays_if": "the team reaches the Round of 16 or beyond — points grow the further they go",
   "teams": [
-    { "name": "Norway", "story": "Erling Haaland leads them to their first World Cup since 1998" },
-    { "name": "Morocco", "story": "2022 semi-finalists — the deepest run ever by an African nation — back for more" },
-    { "name": "Japan", "story": "Beat both Germany and Spain in the 2022 group stage; always a banana skin for giants" },
-    { "name": "Croatia", "story": "Modrić's likely last World Cup — the team that went from nowhere to the 2018 final" },
-    { "name": "Egypt", "story": "Mohamed Salah's last shot at a World Cup moment to remember" },
-    { "name": "USA", "story": "Co-hosts riding a home crowd, built around a young core led by Pulisic" },
-    { "name": "Mexico", "story": "Co-hosts with one of football's most passionate fanbases, hunting to finally break their Round-of-16 ceiling" },
-    { "name": "Uruguay", "story": "A nation of 3.4 million with two World Cup titles — football's biggest overachievers" }
+    { "name": "Croatia", "story": "2018 finalists, 2022 bronze — and Modrić still running the show, surely for the last time." },
+    { "name": "Egypt", "story": "Mohamed Salah's long-awaited World Cup stage, and likely his only shot at it." },
+    { "name": "Japan", "story": "Beat Germany and Spain in 2022. Nobody wants them in their group." },
+    { "name": "Mexico", "story": "Co-hosts with a deafening home crowd, chasing a first run past the Round of 16." },
+    { "name": "Morocco", "story": "The 2022 semi-finalists who stunned the world — Africa's deepest run ever, back for more." },
+    { "name": "Norway", "story": "Haaland's World Cup debut, and Norway's first appearance since 1998." },
+    { "name": "Uruguay", "story": "Two titles from a nation of 3.4 million — football's eternal overachievers." },
+    { "name": "USA", "story": "Co-hosts on home soil, built around a fearless young core led by Pulisic." }
   ]
 }

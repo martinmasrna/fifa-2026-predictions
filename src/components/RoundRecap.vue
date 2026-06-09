@@ -1,19 +1,28 @@
 <template>
-  <div v-if="recap" class="bg-gradient-to-r from-brand-700 to-brand-900 text-white rounded-xl p-5">
-    <div class="text-xs font-semibold uppercase tracking-wider text-brand-200 mb-1">
-      Round complete — {{ roundKey }}
+  <div v-if="recap" class="hero-grad text-white rounded-2xl p-5 md:p-6 shadow-card animate-fade-in">
+    <div class="flex items-center gap-2.5 mb-4">
+      <span class="gold-rule"></span>
+      <span class="text-xs font-bold uppercase tracking-[0.16em] text-white/75">
+        Round complete · {{ roundKey }}
+      </span>
     </div>
-    <div class="flex gap-8 flex-wrap">
-      <div v-if="topScorer">
-        <div class="text-brand-300 text-xs mb-0.5">Top scorer this round</div>
-        <div class="font-bold text-lg">{{ topScorer.display_name }}</div>
-        <div class="text-brand-200 text-sm">+{{ topScorer.roundPts }} pts</div>
+    <div class="flex gap-10 flex-wrap">
+      <div v-if="topScorer" class="flex items-center gap-3">
+        <span class="text-2xl">🔥</span>
+        <div>
+          <div class="text-white/65 text-[11px] uppercase tracking-wide mb-0.5">Top scorer</div>
+          <div class="font-display font-bold text-lg leading-tight">{{ topScorer.display_name }}</div>
+          <div class="text-gold text-sm font-semibold tnum">+{{ topScorer.roundPts }} pts</div>
+        </div>
       </div>
-      <div v-if="biggestMover">
-        <div class="text-brand-300 text-xs mb-0.5">Biggest mover</div>
-        <div class="font-bold text-lg">{{ biggestMover.display_name }}</div>
-        <div class="text-brand-200 text-sm">
-          {{ biggestMover.delta > 0 ? '▲' : '▼' }} {{ Math.abs(biggestMover.delta) }} places
+      <div v-if="biggestMover" class="flex items-center gap-3">
+        <span class="text-2xl">{{ biggestMover.delta > 0 ? '🚀' : '📉' }}</span>
+        <div>
+          <div class="text-white/65 text-[11px] uppercase tracking-wide mb-0.5">Biggest mover</div>
+          <div class="font-display font-bold text-lg leading-tight">{{ biggestMover.display_name }}</div>
+          <div class="text-white/80 text-sm font-semibold tnum">
+            {{ biggestMover.delta > 0 ? '▲' : '▼' }} {{ Math.abs(biggestMover.delta) }} {{ Math.abs(biggestMover.delta) === 1 ? 'place' : 'places' }}
+          </div>
         </div>
       </div>
     </div>

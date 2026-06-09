@@ -34,8 +34,18 @@
     <div v-if="isAfterKickoff">
       <div class="flex items-center gap-3 mb-4"><span class="gold-rule"></span><h2 class="font-display font-bold text-xl">Everyone's predictions</h2></div>
 
-      <div v-if="loading" class="text-ink/40 text-sm card p-4">Loading…</div>
-      <div v-else-if="rows.length === 0" class="text-ink/40 text-sm card p-4">No predictions were submitted for this match.</div>
+      <div v-if="loading" class="card p-4 space-y-3">
+        <div v-for="n in 4" :key="n" class="flex items-center gap-4">
+          <div class="skeleton h-4 w-28"></div>
+          <div class="skeleton h-4 w-12 ml-auto"></div>
+          <div class="skeleton h-5 w-10 rounded-full"></div>
+        </div>
+      </div>
+      <div v-else-if="rows.length === 0" class="empty">
+        <span class="empty-icon"><Icon name="eye-off" :size="22" /></span>
+        <p class="font-display font-bold text-ink/70">No predictions submitted</p>
+        <p class="text-sm">Nobody picked this match before kickoff.</p>
+      </div>
 
       <div v-else class="card overflow-hidden">
         <table class="w-full text-sm">
@@ -94,6 +104,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import { useMatchesStore } from '../stores/matches.js'
 import { useAuthStore } from '../stores/auth.js'
 import Flag from '../components/Flag.vue'
+import Icon from '../components/Icon.vue'
 
 const route = useRoute()
 const matchesStore = useMatchesStore()

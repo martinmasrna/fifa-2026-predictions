@@ -73,7 +73,17 @@
       </div>
     </div>
 
-    <div v-if="filteredMatches.length === 0" class="text-ink/40 text-center py-10 card">Nothing here yet.</div>
+    <div v-if="!loaded" class="grid md:grid-cols-2 gap-3">
+      <MatchCardSkeleton v-for="n in 4" :key="n" />
+    </div>
+
+    <div v-else-if="filteredMatches.length === 0" class="empty">
+      <span class="empty-icon"><Icon name="check" :size="22" /></span>
+      <p class="font-display font-bold text-ink/70">
+        {{ filter === 'scored' ? 'No scored matches yet' : 'Nothing here yet' }}
+      </p>
+      <p class="text-sm">{{ filter === 'scored' ? 'Points show up here once results come in.' : 'Your predictions will appear here.' }}</p>
+    </div>
 
     <template v-else>
       <div v-for="group in groupedMatches" :key="group.round" class="mb-8">
@@ -102,10 +112,13 @@ import { useAuthStore } from '../stores/auth.js'
 import { supabase } from '../lib/supabase.js'
 import { MATCH_1_KICKOFF } from '../config.js'
 import MatchCard from '../components/MatchCard.vue'
+import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
+import Icon from '../components/Icon.vue'
 import Flag from '../components/Flag.vue'
 
 const matchesStore = useMatchesStore()
 const auth = useAuthStore()
+const loaded = computed(() => matchesStore.matches.length > 0)
 
 const pretournamentLocked = computed(() => new Date() >= new Date(MATCH_1_KICKOFF))
 const pt = computed(() => matchesStore.pretournament)

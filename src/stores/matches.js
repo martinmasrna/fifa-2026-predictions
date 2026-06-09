@@ -104,11 +104,15 @@ export const useMatchesStore = defineStore('matches', () => {
     const auth = useAuthStore()
     const uid = auth.session.user.id
 
+    // Key-presence (not ??) so an explicit null clears a field; an omitted
+    // key keeps the existing value. This lets onboarding clear a champion
+    // when its team is removed from the Top 8.
+    const cur = pretournament.value
     const payload = {
       user_id: uid,
-      top8: updates.top8 ?? pretournament.value?.top8 ?? [],
-      winner: updates.winner ?? pretournament.value?.winner ?? null,
-      dark_horse: updates.dark_horse ?? pretournament.value?.dark_horse ?? null,
+      top8: 'top8' in updates ? updates.top8 : (cur?.top8 ?? []),
+      winner: 'winner' in updates ? updates.winner : (cur?.winner ?? null),
+      dark_horse: 'dark_horse' in updates ? updates.dark_horse : (cur?.dark_horse ?? null),
       updated_at: new Date().toISOString(),
     }
 

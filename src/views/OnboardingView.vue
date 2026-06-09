@@ -33,41 +33,59 @@
       <div class="space-y-7">
         <div>
           <h3 class="font-display font-bold text-lg mb-1">Predict every match</h3>
-          <p class="text-sm text-ink/55 mb-3">Guess the full-time score for each match. Knockout games also ask who advances if you call a draw (+3 pts).</p>
+          <p class="text-sm text-ink/55 mb-3">Call the full-time score of every match — the closer you get, the more you score. Knockout games add <span class="font-semibold text-ink/70">+3</span> for correctly picking who goes through.</p>
           <div class="card overflow-hidden">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3 bg-pitch-soft/50 border-b border-ink/10">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-ink/50">Say you predict</span>
+              <span class="font-display tnum font-extrabold text-pitch-dark text-base">2–1</span>
+              <span class="text-xs text-ink/45">— here's what each final score would earn:</span>
+            </div>
             <table class="w-full text-sm">
-              <thead class="bg-pitch-soft/50 text-ink/50 text-xs uppercase tracking-wide">
-                <tr><th class="text-left px-4 py-2.5 font-semibold">What you get right</th><th class="text-right px-4 py-2.5 font-semibold">Points</th></tr>
+              <thead class="text-ink/45 text-[11px] uppercase tracking-wider">
+                <tr>
+                  <th class="text-left px-4 py-2 font-semibold">Final score</th>
+                  <th class="text-left px-4 py-2 font-semibold">What you got right</th>
+                  <th class="text-right px-4 py-2 font-semibold">Points</th>
+                </tr>
               </thead>
               <tbody class="divide-y divide-ink/5">
-                <tr><td class="px-4 py-2.5">Exact score</td><td class="px-4 py-2.5 text-right font-display font-extrabold text-gold-dark text-base">7</td></tr>
-                <tr><td class="px-4 py-2.5 text-ink/70">Right result &amp; goal difference</td><td class="px-4 py-2.5 text-right font-semibold">5</td></tr>
-                <tr><td class="px-4 py-2.5 text-ink/70">Right result &amp; one score correct</td><td class="px-4 py-2.5 text-right font-semibold">4</td></tr>
-                <tr><td class="px-4 py-2.5 text-ink/70">Right result only</td><td class="px-4 py-2.5 text-right font-semibold">3</td></tr>
-                <tr><td class="px-4 py-2.5 text-ink/70">One score correct (wrong result)</td><td class="px-4 py-2.5 text-right font-semibold">1</td></tr>
-                <tr><td class="px-4 py-2.5 text-ink/40">Complete miss</td><td class="px-4 py-2.5 text-right text-ink/30">0</td></tr>
+                <tr class="bg-gold-soft/30">
+                  <td class="px-4 py-2.5 font-display tnum font-bold">2–1</td>
+                  <td class="px-4 py-2.5 text-ink/70">Exact score</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold text-gold-dark text-base">7</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-display tnum font-bold">1–0</td>
+                  <td class="px-4 py-2.5 text-ink/70">Right result + goal difference</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold">5</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-display tnum font-bold">3–1</td>
+                  <td class="px-4 py-2.5 text-ink/70">Right result + one score</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold">4</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-display tnum font-bold">4–2</td>
+                  <td class="px-4 py-2.5 text-ink/70">Right result</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold">3</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-display tnum font-bold">2–3</td>
+                  <td class="px-4 py-2.5 text-ink/70">One score, wrong result</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold">1</td>
+                </tr>
+                <tr class="text-ink/40">
+                  <td class="px-4 py-2.5 font-display tnum font-bold">0–3</td>
+                  <td class="px-4 py-2.5">Nothing right</td>
+                  <td class="px-4 py-2.5 text-right font-display font-extrabold text-ink/30">0</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <div>
-          <h3 class="font-display font-bold text-lg mb-1">Three pre-tournament picks</h3>
-          <p class="text-sm text-ink/55 mb-3">Made once before kickoff — you'll set these up next. All lock at the first whistle.</p>
-          <div class="grid sm:grid-cols-3 gap-3">
-            <div class="card p-4 bg-pitch-soft/40 border-pitch/10">
-              <div class="font-display font-bold text-sm">Top 8 · 15 pts each</div>
-              <div class="text-xs text-ink/55 mt-0.5">Pick 8 quarter-finalists. Max 120.</div>
-            </div>
-            <div class="card p-4 bg-gold-soft/60 border-gold/15">
-              <div class="font-display font-bold text-sm">Winner · 25 pts</div>
-              <div class="text-xs text-ink/55 mt-0.5">The champion, from your Top 8.</div>
-            </div>
-            <div class="card p-4 bg-purple-50 border-purple-100">
-              <div class="font-display font-bold text-sm">Dark horse · up to 50</div>
-              <div class="text-xs text-ink/55 mt-0.5">Score big on a Cinderella run.</div>
-            </div>
-          </div>
+        <div class="rounded-xl bg-gold-soft/60 border border-gold/20 px-4 py-3.5 text-sm text-ink/70">
+          Before you start predicting matches, there are <span class="font-semibold text-ink">3 one-time pre-tournament picks</span> to make — we'll walk through each next. They all lock at the first whistle.
         </div>
       </div>
 
@@ -136,7 +154,7 @@
     <!-- ── Step 3: Dark horse ────────────────────────────── -->
     <div v-if="step === 3" class="max-w-3xl mx-auto animate-fade-in">
       <div class="flex items-center gap-3 mb-1"><span class="gold-rule"></span><h2 class="font-display font-extrabold text-3xl">Your dark horse</h2></div>
-      <p class="text-ink/50 text-sm mb-4">Pick one team to root for and score big if they go on a run. The further they go, the more you earn.</p>
+      <p class="text-ink/50 text-sm mb-4">Back one underdog to go the distance. The deeper they run, the more you score.</p>
 
       <!-- points ladder -->
       <div class="flex items-center gap-1.5 mb-6 text-xs font-semibold overflow-x-auto pb-1">
@@ -167,7 +185,7 @@
     <div v-if="step === 4" class="max-w-2xl mx-auto text-center animate-fade-in">
       <div class="text-5xl mb-3 animate-pop">🎉</div>
       <h2 class="font-display font-extrabold text-3xl mb-1">You're locked in!</h2>
-      <p class="text-ink/50 text-sm mb-8">Here are your pre-tournament picks. You can tweak them from <span class="font-semibold text-ink/70">My Predictions</span> right up until the first whistle.</p>
+      <p class="text-ink/50 text-sm mb-8">You can tweak your picks from <span class="font-semibold text-ink/70">My Predictions</span> right up until the first whistle.</p>
 
       <div class="card p-6 text-left space-y-6">
         <div>
@@ -272,9 +290,10 @@ onMounted(() => {
 })
 
 function isReachable(i) {
+  // Dark horse (3) is independent of the Top 8 / champion, so it's always reachable.
+  if (i === 3) return true
   if (i <= 1) return true
-  if (i === 2) return selected.value.length > 0
-  if (i === 3) return winner.value !== null
+  if (i === 2) return selected.value.length > 0 // champion is picked from your Top 8
   return false
 }
 
@@ -293,7 +312,9 @@ async function advance() {
   saving.value = true
   try {
     if (step.value === 1) {
-      await matchesStore.savePretournament({ top8: [...selected.value] })
+      // Persist winner too: toggleTeam clears it when the champion's team is
+      // removed from the Top 8, and we want that to stick.
+      await matchesStore.savePretournament({ top8: [...selected.value], winner: winner.value })
       step.value = 2
     } else if (step.value === 2) {
       await matchesStore.savePretournament({ top8: [...selected.value], winner: winner.value })

@@ -1,7 +1,18 @@
 <template>
   <div>
-    <div class="flex items-center gap-3 mb-6"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Standings</h1></div>
+    <!-- Skeleton while team data loads -->
+    <div v-if="!loaded" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div v-for="n in 4" :key="n" class="card p-4">
+        <div class="skeleton h-3 w-20 mb-4"></div>
+        <div v-for="r in 4" :key="r" class="flex items-center gap-2.5 py-2">
+          <div class="skeleton w-5 h-4 rounded"></div>
+          <div class="skeleton h-3 flex-1 max-w-[8rem]"></div>
+          <div class="skeleton h-3 w-6 ml-auto"></div>
+        </div>
+      </div>
+    </div>
 
+    <template v-else>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
       <div v-for="g in groupStandings" :key="g.letter" class="card overflow-hidden">
         <h2 class="text-xs font-bold text-ink/45 uppercase tracking-wider px-4 pt-4 pb-2">Group {{ g.letter }}</h2>
@@ -87,6 +98,7 @@
       <span class="w-3 h-3 rounded-sm bg-pitch-soft border border-pitch/30 inline-block"></span>
       advancing to Round of 32
     </p>
+    </template>
   </div>
 </template>
 
@@ -96,6 +108,7 @@ import { useMatchesStore } from '../stores/matches.js'
 import Flag from '../components/Flag.vue'
 
 const matchesStore = useMatchesStore()
+const loaded = computed(() => matchesStore.teams.length > 0)
 
 const groupStandings = computed(() => {
   const groups = new Map()

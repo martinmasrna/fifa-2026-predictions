@@ -52,8 +52,14 @@
     </div>
 
     <!-- Match list -->
-    <div v-if="visibleMatches.length === 0" class="text-center text-ink/40 py-16 card">
-      No matches to show.
+    <div v-if="!loaded" class="grid md:grid-cols-2 gap-3">
+      <MatchCardSkeleton v-for="n in 6" :key="n" />
+    </div>
+
+    <div v-else-if="visibleMatches.length === 0" class="empty">
+      <span class="empty-icon"><Icon name="timer" :size="22" /></span>
+      <p class="font-display font-bold text-ink/70">No matches match these filters</p>
+      <button class="btn-secondary btn-sm" @click="resetFilters">Clear filters</button>
     </div>
 
     <template v-else>
@@ -79,8 +85,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
 import MatchCard from '../components/MatchCard.vue'
+import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
+import Icon from '../components/Icon.vue'
 
 const matchesStore = useMatchesStore()
+const loaded = computed(() => matchesStore.matches.length > 0)
 
 const filters = [
   { id: 'all', label: 'All' },
@@ -91,6 +100,12 @@ const filters = [
 const activeFilter = ref('all')
 const activeGroup = ref(null)
 const activeMatchday = ref(null)
+
+function resetFilters() {
+  activeFilter.value = 'all'
+  activeGroup.value = null
+  activeMatchday.value = null
+}
 
 function abbreviate(label) {
   const md = label.match(/matchday\s+(\d+)/i)

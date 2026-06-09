@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const session = ref(null)
   const member = ref(null)
   const initialized = ref(false)
+  const recovering = ref(false) // true while a password-reset link is being handled
 
   const isOwner = computed(() => member.value?.is_owner === true)
   const pretournamentLocked = computed(() => new Date() >= new Date(MATCH_1_KICKOFF))
@@ -29,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     supabase.auth.onAuthStateChange(async (event, s) => {
       session.value = s
+      if (event === 'PASSWORD_RECOVERY') recovering.value = true
       if (s) {
         await fetchMember(s.user.id)
       } else {
@@ -75,6 +77,18 @@ export const useAuthStore = defineStore('auth', () => {
     member.value = null
   }
 
+  async function resetPassword(email) {
+    const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    if (error) throw error
+  }
+
+  async function updatePassword(newPassword) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+    recovering.value = false
+  }
+
   async function join(joinCodePlain, displayName) {
     const bcrypt = await import('bcryptjs')
     const valid = await bcrypt.compare(joinCodePlain, CONFIG.joinCodeHash)
@@ -101,7 +115,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    session, member, initialized, isOwner, pretournamentLocked,
+    session, member, initialized, isOwner, pretournamentLocked, recovering,
     init, signIn, signUp, signOut, join, rotateMemberRow, pendingDisplayName,
+    resetPassword, updatePassword,
   }
 })

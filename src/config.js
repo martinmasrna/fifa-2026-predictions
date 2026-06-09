@@ -1,6 +1,5 @@
 // Pool configuration — committed to the repo.
 // The anon key is intentionally public; security is enforced by Supabase RLS.
-// Fill TODO values before go-live (see pre-go-live checklist in the build plan).
 
 export const CONFIG = {
   poolName: 'JPZK',
