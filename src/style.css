@@ -93,6 +93,10 @@
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; }
 
+  /* Hide the scrollbar on horizontal scrollers (mobile nav, chip rows) */
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+
   /* Sweeping highlight for .skeleton blocks */
   @keyframes shimmer {
     100% { transform: translateX(100%); }

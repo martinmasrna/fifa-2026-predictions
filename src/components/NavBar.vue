@@ -30,32 +30,46 @@
       </div>
 
       <!-- Mobile nav -->
-      <div class="md:hidden flex gap-1 pb-2 -mx-1 px-1 overflow-x-auto text-sm font-semibold">
-        <NavLink to="/">Leaderboard</NavLink>
-        <NavLink to="/matches">Matches</NavLink>
-        <NavLink to="/tournament">Tournament</NavLink>
-        <NavLink to="/my-picks">My Predictions</NavLink>
-        <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
+      <div class="md:hidden relative">
+        <div ref="mobileNav" class="flex gap-1 pb-2 -mx-1 px-1 overflow-x-auto scrollbar-none text-sm font-semibold">
+          <NavLink to="/">Leaderboard</NavLink>
+          <NavLink to="/matches">Matches</NavLink>
+          <NavLink to="/tournament">Tournament</NavLink>
+          <NavLink to="/my-picks">My Predictions</NavLink>
+          <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
+        </div>
+        <!-- right-edge fade signals there's more to scroll -->
+        <div class="pointer-events-none absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-canvas to-transparent"></div>
       </div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { RouterLink, useLink, useRouter } from 'vue-router'
-import { defineComponent, h, computed } from 'vue'
+import { RouterLink, useLink, useRouter, useRoute } from 'vue-router'
+import { defineComponent, h, computed, ref, onMounted, watch, nextTick } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { CONFIG } from '../config.js'
 import Icon from './Icon.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 const poolName = CONFIG.poolName
 
 async function signOut() {
   await auth.signOut()
   router.push('/auth')
 }
+
+// Keep the active tab visible in the horizontally-scrolling mobile nav.
+const mobileNav = ref(null)
+function scrollActiveIntoView() {
+  mobileNav.value?.querySelector('a.bg-pitch')
+    ?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+}
+onMounted(scrollActiveIntoView)
+watch(() => route.path, () => nextTick(scrollActiveIntoView))
 
 const NavLink = defineComponent({
   props: { to: String },

@@ -2,8 +2,8 @@
   <div class="flex items-center justify-center min-h-[80vh]">
     <div class="card shadow-lift overflow-hidden w-full max-w-4xl grid md:grid-cols-2 animate-fade-in">
 
-      <!-- Brand panel -->
-      <div class="hero-grad text-white p-8 sm:p-10 flex flex-col justify-center relative">
+      <!-- Brand panel (desktop only; mobile gets a compact header in the form) -->
+      <div class="hero-grad text-white p-8 sm:p-10 hidden md:flex flex-col justify-center relative">
         <div class="relative z-10">
           <div class="flex items-center gap-2 mb-8">
             <span class="w-7 h-7 rounded-lg bg-white/15 grid place-items-center text-base">⚽</span>
@@ -25,6 +25,16 @@
 
       <!-- Form -->
       <div class="p-8 sm:p-10 flex flex-col justify-center">
+        <!-- Compact brand header — mobile only -->
+        <div class="md:hidden mb-7">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-7 h-7 rounded-lg bg-pitch grid place-items-center text-white text-sm">⚽</span>
+            <span class="font-display font-extrabold tracking-tight">{{ CONFIG.poolName }}</span>
+          </div>
+          <h1 class="font-display font-extrabold text-2xl leading-tight">FIFA World Cup 2026</h1>
+          <p class="text-ink/50 text-sm">6 weeks, 104 matches, 1 champion.</p>
+        </div>
+
         <h2 class="font-display font-bold text-xl mb-6">
           {{ heading }}
         </h2>
