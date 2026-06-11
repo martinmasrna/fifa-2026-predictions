@@ -111,6 +111,7 @@ import { useMatchesStore } from '../stores/matches.js'
 import { useAuthStore } from '../stores/auth.js'
 import { supabase } from '../lib/supabase.js'
 import { MATCH_1_KICKOFF } from '../config.js'
+import { serverNow } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
 import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
 import Icon from '../components/Icon.vue'
@@ -120,7 +121,7 @@ const matchesStore = useMatchesStore()
 const auth = useAuthStore()
 const loaded = computed(() => matchesStore.matches.length > 0)
 
-const pretournamentLocked = computed(() => new Date() >= new Date(MATCH_1_KICKOFF))
+const pretournamentLocked = computed(() => serverNow() >= new Date(MATCH_1_KICKOFF).getTime())
 const pt = computed(() => matchesStore.pretournament)
 const predMap = computed(() => matchesStore.predMap)
 

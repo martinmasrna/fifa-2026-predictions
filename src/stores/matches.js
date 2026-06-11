@@ -126,20 +126,28 @@ export const useMatchesStore = defineStore('matches', () => {
     pretournament.value = data
   }
 
-  // Returns all members' predictions for a match (after kickoff)
+  // Returns all members' predictions for a match (after kickoff).
+  // predictions.user_id and members.user_id both FK to auth.users — there is
+  // no direct predictions→members relationship for PostgREST to embed, so we
+  // fetch members separately and merge display names in JS.
   async function loadMatchPredictions(matchNo) {
-    const { data, error } = await supabase
-      .from('predictions')
-      .select('*, members(display_name)')
-      .eq('match_no', matchNo)
-    if (error) throw error
-    return data ?? []
+    const [predRes, memberRes] = await Promise.all([
+      supabase.from('predictions').select('*').eq('match_no', matchNo),
+      supabase.from('members').select('user_id, display_name'),
+    ])
+    if (predRes.error) throw predRes.error
+    if (memberRes.error) throw memberRes.error
+    const names = new Map((memberRes.data ?? []).map(m => [m.user_id, m.display_name]))
+    return (predRes.data ?? []).map(p => ({
+      ...p,
+      members: { display_name: names.get(p.user_id) ?? 'Unknown' },
+    }))
   }
 
   async function loadMatchScores(matchNo) {
     const { data, error } = await supabase
       .from('prediction_scores')
-      .select('*, members(display_name)')
+      .select('user_id, points')
       .eq('match_no', matchNo)
     if (error) throw error
     return data ?? []

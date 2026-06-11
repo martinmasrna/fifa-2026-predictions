@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '../lib/supabase.js'
 import { CONFIG, MATCH_1_KICKOFF } from '../config.js'
+import { serverNow } from '../lib/serverTime.js'
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref(null)
@@ -10,7 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   const recovering = ref(false) // true while a password-reset link is being handled
 
   const isOwner = computed(() => member.value?.is_owner === true)
-  const pretournamentLocked = computed(() => new Date() >= new Date(MATCH_1_KICKOFF))
+  const pretournamentLocked = computed(() => serverNow() >= new Date(MATCH_1_KICKOFF).getTime())
 
   async function init() {
     if (initialized.value) return
