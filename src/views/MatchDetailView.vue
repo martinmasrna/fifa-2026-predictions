@@ -41,6 +41,11 @@
           <div class="skeleton h-5 w-10 rounded-full"></div>
         </div>
       </div>
+      <div v-else-if="loadError" class="empty">
+        <span class="empty-icon"><Icon name="eye-off" :size="22" /></span>
+        <p class="font-display font-bold text-ink/70">Couldn't load predictions</p>
+        <p class="text-sm">Something went wrong. Please refresh to try again.</p>
+      </div>
       <div v-else-if="rows.length === 0" class="empty">
         <span class="empty-icon"><Icon name="eye-off" :size="22" /></span>
         <p class="font-display font-bold text-ink/70">No predictions submitted</p>
@@ -103,6 +108,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useMatchesStore } from '../stores/matches.js'
 import { useAuthStore } from '../stores/auth.js'
+import { serverNow, syncServerTime } from '../lib/serverTime.js'
 import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
 
@@ -113,9 +119,12 @@ const auth = useAuthStore()
 const matchNo = computed(() => Number(route.params.matchNo))
 const match = computed(() => matchesStore.matchMap.get(matchNo.value))
 const myPred = computed(() => matchesStore.predMap.get(matchNo.value))
-const isAfterKickoff = computed(() => match.value && new Date() >= new Date(match.value.kickoff_utc))
+// Anchor to the server clock (serverNow) — never the browser's, which can be
+// skewed/spoofed. offsetMs is reactive, so this recomputes once time syncs.
+const isAfterKickoff = computed(() => match.value && serverNow() >= new Date(match.value.kickoff_utc).getTime())
 
 const loading = ref(false)
+const loadError = ref(false)
 const rows = ref([])
 const scoreMap = ref(new Map())
 
@@ -134,8 +143,10 @@ function winnerName(side) {
 }
 
 onMounted(async () => {
+  await syncServerTime() // ensure the clock offset is known before gating
   if (!isAfterKickoff.value) return
   loading.value = true
+  loadError.value = false
   try {
     const [preds, scores] = await Promise.all([
       matchesStore.loadMatchPredictions(matchNo.value),
@@ -143,6 +154,9 @@ onMounted(async () => {
     ])
     rows.value = preds
     scoreMap.value = new Map(scores.map(s => [s.user_id, s.points]))
+  } catch (e) {
+    console.error('Failed to load match predictions', e)
+    loadError.value = true
   } finally {
     loading.value = false
   }

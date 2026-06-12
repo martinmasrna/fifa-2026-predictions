@@ -84,6 +84,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
+import { serverNow } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
 import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
 import Icon from '../components/Icon.vue'
@@ -136,7 +137,7 @@ const matchdays = computed(() => {
   return labels
 })
 
-const now = ref(new Date())
+const now = ref(new Date(serverNow()))
 
 const visibleMatches = computed(() => {
   let ms = matchesStore.matches
@@ -166,6 +167,6 @@ const groupedByRound = computed(() => {
 })
 
 let nowTimer = null
-onMounted(() => { nowTimer = setInterval(() => { now.value = new Date() }, 30_000) })
+onMounted(() => { nowTimer = setInterval(() => { now.value = new Date(serverNow()) }, 30_000) })
 onUnmounted(() => { clearInterval(nowTimer) })
 </script>

@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
 import { useMatchesStore } from '../stores/matches.js'
 import { MATCH_1_KICKOFF, CONFIG } from '../config.js'
+import { serverNow, syncServerTime } from '../lib/serverTime.js'
 
 const auth = useAuthStore()
 const matchesStore = useMatchesStore()
@@ -62,7 +63,8 @@ async function submit() {
     auth.pendingDisplayName = ''
     await matchesStore.loadMyPredictions()
 
-    const locked = new Date() >= new Date(MATCH_1_KICKOFF)
+    await syncServerTime()
+    const locked = serverNow() >= new Date(MATCH_1_KICKOFF).getTime()
     router.push(locked ? '/' : '/onboarding')
   } catch (e) {
     error.value = e.message
