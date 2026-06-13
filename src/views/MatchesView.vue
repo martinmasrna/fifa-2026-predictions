@@ -95,7 +95,7 @@ const loaded = computed(() => matchesStore.matches.length > 0)
 const filters = [
   { id: 'all', label: 'All' },
   { id: 'open', label: 'Open' },
-  { id: 'upcoming', label: 'Upcoming' },
+  { id: 'live', label: 'Live' },
   { id: 'results', label: 'Results' },
 ]
 const activeFilter = ref('all')
@@ -146,8 +146,11 @@ const visibleMatches = computed(() => {
   if (activeMatchday.value) ms = ms.filter(m => m.round_label === activeMatchday.value)
 
   const n = now.value
-  if (activeFilter.value === 'open') ms = ms.filter(m => new Date(m.kickoff_utc) > n && m.status !== 'final')
-  else if (activeFilter.value === 'upcoming') ms = ms.filter(m => new Date(m.kickoff_utc) > n)
+  // open = predictions still open (kickoff in the future)
+  // live = kicked off but no final result yet
+  // results = finished
+  if (activeFilter.value === 'open') ms = ms.filter(m => new Date(m.kickoff_utc) > n)
+  else if (activeFilter.value === 'live') ms = ms.filter(m => new Date(m.kickoff_utc) <= n && m.status !== 'final')
   else if (activeFilter.value === 'results') ms = ms.filter(m => m.status === 'final')
   return ms
 })

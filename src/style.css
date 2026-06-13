@@ -43,8 +43,10 @@
   .badge       { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
   .badge-open  { @apply badge bg-pitch-soft text-pitch-dark; }
   .badge-locked{ @apply badge bg-ink/5 text-ink/45; }
+  .badge-live  { @apply badge bg-rose-50 text-rose-600; }
   .badge-final { @apply badge bg-gold-soft text-gold-dark; }
   .badge-points{ @apply badge bg-gold-soft text-gold-dark font-bold; }
+  .live-dot    { @apply inline-block w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse; }
 
   /* ── Section heading accent rule ─────────────────────── */
   .gold-rule { @apply inline-block w-1 h-6 rounded-full bg-gold; }
@@ -159,7 +161,12 @@
 .page-leave-active { transition: opacity 0.12s ease; }
 .page-leave-to     { opacity: 0; }
 
+/* Generic fade — used by overlays/modals. */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
+.fade-enter-from, .fade-leave-to       { opacity: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   .quote-enter-active, .quote-leave-active,
-  .page-enter-active, .page-leave-active { transition: none; }
+  .page-enter-active, .page-leave-active,
+  .fade-enter-active, .fade-leave-active { transition: none; }
 }

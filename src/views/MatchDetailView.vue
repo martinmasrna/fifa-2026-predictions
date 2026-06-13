@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useMatchesStore } from '../stores/matches.js'
 import { useAuthStore } from '../stores/auth.js'
@@ -125,6 +125,7 @@ const isAfterKickoff = computed(() => match.value && serverNow() >= new Date(mat
 
 const loading = ref(false)
 const loadError = ref(false)
+const revealLoaded = ref(false)
 const rows = ref([])
 const scoreMap = ref(new Map())
 
@@ -142,9 +143,14 @@ function winnerName(side) {
   return ft2 > ft1 ? 'text-pitch-dark' : 'text-ink/40'
 }
 
-onMounted(async () => {
-  await syncServerTime() // ensure the clock offset is known before gating
-  if (!isAfterKickoff.value) return
+// Load everyone's predictions once the match is available AND kickoff has
+// passed. This must be reactive, not a one-shot in onMounted: on a hard reload
+// the matches store is still loading when this view mounts, so match.value /
+// isAfterKickoff aren't ready yet. Watching them (with a once-guard) means the
+// reveal loads the moment the data lands, instead of bailing forever.
+async function loadReveal() {
+  if (revealLoaded.value || loading.value) return
+  if (!match.value || !isAfterKickoff.value) return
   loading.value = true
   loadError.value = false
   try {
@@ -154,13 +160,22 @@ onMounted(async () => {
     ])
     rows.value = preds
     scoreMap.value = new Map(scores.map(s => [s.user_id, s.points]))
+    revealLoaded.value = true
   } catch (e) {
     console.error('Failed to load match predictions', e)
-    loadError.value = true
+    loadError.value = true // leave revealLoaded false so a later tick can retry
   } finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  await syncServerTime() // ensure the clock offset is known before gating
+  loadReveal()
 })
+
+// Retry when the match data arrives or kickoff passes (offsetMs is reactive too).
+watch([match, isAfterKickoff], loadReveal)
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString('en-GB', {

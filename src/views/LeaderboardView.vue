@@ -113,9 +113,14 @@
 
     <!-- ══ LIVE STATE — standings board ═══════════════════ -->
     <template v-else>
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Leaderboard</h1></div>
-        <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
+        <div class="flex items-center gap-3">
+          <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
+          <button @click="showScoring = true" class="btn-secondary btn-sm whitespace-nowrap">
+            <Icon name="eye" :size="14" /> Scoring
+          </button>
+        </div>
       </div>
 
       <UpcomingMatches />
@@ -178,6 +183,8 @@
 
       <p class="text-xs text-ink/40 text-right">Updates live as results come in.</p>
     </template>
+
+    <ScoringInfoModal :open="showScoring" @close="showScoring = false" />
   </div>
 </template>
 
@@ -193,12 +200,14 @@ import RoundRecap from '../components/RoundRecap.vue'
 import UpcomingMatches from '../components/UpcomingMatches.vue'
 import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
+import ScoringInfoModal from '../components/ScoringInfoModal.vue'
 import { flagUrl } from '../lib/flags.js'
 
 const lb = useLeaderboardStore()
 const auth = useAuthStore()
 const matchesStore = useMatchesStore()
 const recapRound = ref(null)
+const showScoring = ref(false)
 
 // ── Copy invite link ───────────────────────────────────
 const inviteCopied = ref(false)
