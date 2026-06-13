@@ -75,6 +75,32 @@ export const useMatchesStore = defineStore('matches', () => {
     scores.value = scoreRes.data ?? []
   }
 
+  // Re-pull the data that the sync Action mutates while the app is open:
+  // match results (matches) and the current user's per-match points
+  // (prediction_scores). Deliberately does NOT refetch `predictions` — that
+  // would clobber an in-progress, unsaved pick in MatchCard. Resilient by
+  // design: a transient failure during background polling is logged, not thrown.
+  async function refreshLive() {
+    const auth = useAuthStore()
+    if (!auth.session) return
+
+    const [matchesResult, scoreRes] = await Promise.allSettled([
+      loadMatches(),
+      supabase.from('prediction_scores')
+        .select('match_no, points')
+        .eq('user_id', auth.session.user.id),
+    ])
+
+    if (matchesResult.status === 'rejected') {
+      console.warn('refreshLive: matches reload failed', matchesResult.reason)
+    }
+    if (scoreRes.status === 'fulfilled' && !scoreRes.value.error && scoreRes.value.data) {
+      scores.value = scoreRes.value.data
+    } else if (scoreRes.status === 'rejected') {
+      console.warn('refreshLive: scores reload failed', scoreRes.reason)
+    }
+  }
+
   async function savePrediction(matchNo, pred1, pred2, predAdvancer) {
     const auth = useAuthStore()
     const existing = predMap.value.get(matchNo)
@@ -156,7 +182,7 @@ export const useMatchesStore = defineStore('matches', () => {
   return {
     matches, schedule, predictions, scores, pretournament, teams, darkHorseTeams,
     loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches,
-    loadReferenceData, loadMatches, loadMyPredictions,
+    loadReferenceData, loadMatches, loadMyPredictions, refreshLive,
     savePrediction, savePretournament, loadMatchPredictions, loadMatchScores,
   }
 })

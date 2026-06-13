@@ -8,6 +8,7 @@ import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament, deriveAdvancer } from '../src/lib/scoring.js'
+import { rankRows } from '../src/lib/ranking.js'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const dataDir = join(__dir, '../public/data')
@@ -447,15 +448,17 @@ async function maybeSnapshotStandings(allMatches) {
 
     if (existing?.length) continue  // already snapshotted
 
-    // Take snapshot
-    const { data: leaderboard } = await supabase.from('leaderboard').select('user_id, grand_total')
+    // Take snapshot — rank with the same logic as the live board (lib/ranking.js),
+    // including tiebreakers and shared ranks for true ties.
+    const { data: leaderboard } = await supabase
+      .from('leaderboard')
+      .select('user_id, grand_total, correct_results, exact_scorelines')
     if (!leaderboard?.length) continue
 
-    const sorted = [...leaderboard].sort((a, b) => b.grand_total - a.grand_total)
-    const snapshots = sorted.map((row, i) => ({
+    const snapshots = rankRows(leaderboard).map((row) => ({
       round_key: roundKey,
       user_id: row.user_id,
-      rank: i + 1,
+      rank: row.rank,
       total_points: row.grand_total,
     }))
 

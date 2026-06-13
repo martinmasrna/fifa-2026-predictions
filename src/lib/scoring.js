@@ -1,6 +1,35 @@
 // Pure scoring module — no I/O, no side effects.
 // Used by both the Vue frontend (via import) and the GitHub Action.
 
+// Single source of truth for every point value. The scoring functions below
+// and the "How scoring works" modal (ScoringInfoModal.vue) both read from here,
+// so the rules and the explanation can never drift apart.
+export const POINTS = {
+  // Match scoreline (group stage, and the 90-min component of a knockout).
+  scoreline: {
+    exact: 7,            // exact scoreline
+    resultAndGD: 5,      // right result + right goal difference
+    resultAndOneTeam: 4, // right result + one team's goals exact
+    result: 3,           // right result only (W/D/L)
+    oneTeam: 1,          // one team's goals exact, wrong result
+  },
+  // Knockout bonus for correctly picking who advances.
+  knockoutAdvance: 3,
+  // Pre-tournament picks.
+  pretournament: {
+    quarterFinalist: 15, // per Top-8 pick that reaches the quarter-finals
+    champion: 25,        // correct tournament winner
+  },
+  // Dark horse — scored on how far the picked team runs.
+  darkHorse: {
+    champion: 50,
+    runnerUp: 30,
+    semiFinal: 20,
+    quarterFinal: 10,
+    roundOf16: 5,
+  },
+}
+
 /**
  * @param {number} g1
  * @param {number} g2
@@ -25,19 +54,19 @@ export function scoreGroupMatch(prediction, reality) {
   const pg1 = prediction.g1, pg2 = prediction.g2
   const ag1 = reality.g1, ag2 = reality.g2
 
-  if (pg1 === ag1 && pg2 === ag2) return 7
+  if (pg1 === ag1 && pg2 === ag2) return POINTS.scoreline.exact
 
   const correctResult = getResult(pg1, pg2) === getResult(ag1, ag2)
   const correctGD = (pg1 - pg2) === (ag1 - ag2)
   const oneTeamRight = pg1 === ag1 || pg2 === ag2
 
   if (correctResult) {
-    if (correctGD) return 5      // also covers all draws catching draws
-    if (oneTeamRight) return 4
-    return 3
+    if (correctGD) return POINTS.scoreline.resultAndGD  // also covers draws catching draws
+    if (oneTeamRight) return POINTS.scoreline.resultAndOneTeam
+    return POINTS.scoreline.result
   }
 
-  if (oneTeamRight) return 1
+  if (oneTeamRight) return POINTS.scoreline.oneTeam
   return 0
 }
 
@@ -98,7 +127,7 @@ export function scoreKnockoutMatch(prediction, reality) {
     team2: reality.team2,
   })
 
-  const advance = (predictedAdvancer && actualAdvancer && predictedAdvancer === actualAdvancer) ? 3 : 0
+  const advance = (predictedAdvancer && actualAdvancer && predictedAdvancer === actualAdvancer) ? POINTS.knockoutAdvance : 0
   return { scoreline, advance, total: scoreline + advance }
 }
 
@@ -129,21 +158,21 @@ export function scorePretournament(prediction, reality) {
   if (prediction.top8?.length && reality.quarterFinalists?.length) {
     const predicted = new Set(prediction.top8)
     for (const team of reality.quarterFinalists) {
-      if (predicted.has(team)) top8_pts += 15
+      if (predicted.has(team)) top8_pts += POINTS.pretournament.quarterFinalist
     }
   }
 
   if (prediction.winner && reality.tournamentWinner) {
-    if (prediction.winner === reality.tournamentWinner) winner_pts = 25
+    if (prediction.winner === reality.tournamentWinner) winner_pts = POINTS.pretournament.champion
   }
 
   const dh = prediction.dark_horse
   if (dh) {
-    if (reality.tournamentWinner === dh) dark_horse_pts = 50
-    else if (reality.runnerUp === dh) dark_horse_pts = 30
-    else if (reality.semiFinalists?.includes(dh)) dark_horse_pts = 20
-    else if (reality.quarterFinalists?.includes(dh)) dark_horse_pts = 10
-    else if (reality.roundOf16Teams?.includes(dh)) dark_horse_pts = 5
+    if (reality.tournamentWinner === dh) dark_horse_pts = POINTS.darkHorse.champion
+    else if (reality.runnerUp === dh) dark_horse_pts = POINTS.darkHorse.runnerUp
+    else if (reality.semiFinalists?.includes(dh)) dark_horse_pts = POINTS.darkHorse.semiFinal
+    else if (reality.quarterFinalists?.includes(dh)) dark_horse_pts = POINTS.darkHorse.quarterFinal
+    else if (reality.roundOf16Teams?.includes(dh)) dark_horse_pts = POINTS.darkHorse.roundOf16
   }
 
   return { top8_pts, winner_pts, dark_horse_pts }

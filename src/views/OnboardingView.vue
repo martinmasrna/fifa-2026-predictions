@@ -33,55 +33,8 @@
       <div class="space-y-7">
         <div>
           <h3 class="font-display font-bold text-lg mb-1">Predict every match</h3>
-          <p class="text-sm text-ink/55 mb-3">Call the full-time score of every match — the closer you get, the more you score. Knockout games add <span class="font-semibold text-ink/70">+3</span> for correctly picking who goes through.</p>
-          <div class="card overflow-hidden">
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3 bg-pitch-soft/50 border-b border-ink/10">
-              <span class="text-[11px] font-semibold uppercase tracking-wider text-ink/50">Say you predict</span>
-              <span class="font-display tnum font-extrabold text-pitch-dark text-base">2–1</span>
-              <span class="text-xs text-ink/45">— here's what each final score would earn:</span>
-            </div>
-            <table class="w-full text-sm">
-              <thead class="text-ink/45 text-[11px] uppercase tracking-wider">
-                <tr>
-                  <th class="text-left px-4 py-2 font-semibold">Final score</th>
-                  <th class="text-left px-4 py-2 font-semibold">What you got right</th>
-                  <th class="text-right px-4 py-2 font-semibold">Points</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-ink/5">
-                <tr class="bg-gold-soft/30">
-                  <td class="px-4 py-2.5 font-display tnum font-bold">2–1</td>
-                  <td class="px-4 py-2.5 text-ink/70">Exact score</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold text-gold-dark text-base">7</td>
-                </tr>
-                <tr>
-                  <td class="px-4 py-2.5 font-display tnum font-bold">1–0</td>
-                  <td class="px-4 py-2.5 text-ink/70">Right result + goal difference</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold">5</td>
-                </tr>
-                <tr>
-                  <td class="px-4 py-2.5 font-display tnum font-bold">3–1</td>
-                  <td class="px-4 py-2.5 text-ink/70">Right result + one score</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold">4</td>
-                </tr>
-                <tr>
-                  <td class="px-4 py-2.5 font-display tnum font-bold">4–2</td>
-                  <td class="px-4 py-2.5 text-ink/70">Right result</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold">3</td>
-                </tr>
-                <tr>
-                  <td class="px-4 py-2.5 font-display tnum font-bold">2–3</td>
-                  <td class="px-4 py-2.5 text-ink/70">One score, wrong result</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold">1</td>
-                </tr>
-                <tr class="text-ink/40">
-                  <td class="px-4 py-2.5 font-display tnum font-bold">0–3</td>
-                  <td class="px-4 py-2.5">Nothing right</td>
-                  <td class="px-4 py-2.5 text-right font-display font-extrabold text-ink/30">0</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <p class="text-sm text-ink/55 mb-3">Call the full-time score of every match — the closer you get, the more you score. Knockout games add <span class="font-semibold text-ink/70">+{{ POINTS.knockoutAdvance }}</span> for correctly picking who goes through.</p>
+          <ScoringExample />
         </div>
 
         <div class="rounded-xl bg-gold-soft/60 border border-gold/20 px-4 py-3.5 text-sm text-ink/70">
@@ -98,7 +51,7 @@
     <!-- ── Step 1: Top 8 ─────────────────────────────────── -->
     <div v-if="step === 1" class="max-w-5xl mx-auto animate-fade-in">
       <div class="flex items-center gap-3 mb-1"><span class="gold-rule"></span><h2 class="font-display font-extrabold text-3xl">Your Top 8</h2></div>
-      <p class="text-ink/50 text-sm mb-6">Pick the 8 teams you think will reach the quarter-finals — 15 points for each one that makes it.</p>
+      <p class="text-ink/50 text-sm mb-6">Pick the 8 teams you think will reach the quarter-finals — {{ POINTS.pretournament.quarterFinalist }} points for each one that makes it.</p>
 
       <div v-for="group in groupedTeams" :key="group.letter" class="mb-5">
         <h3 class="text-xs font-bold text-ink/40 uppercase tracking-wider mb-2">Group {{ group.letter }}</h3>
@@ -126,7 +79,7 @@
     <!-- ── Step 2: Winner ────────────────────────────────── -->
     <div v-if="step === 2" class="max-w-3xl mx-auto animate-fade-in">
       <div class="flex items-center gap-3 mb-1"><span class="gold-rule"></span><h2 class="font-display font-extrabold text-3xl">Your champion</h2></div>
-      <p class="text-ink/50 text-sm mb-6">Which of your Top 8 lifts the trophy? Worth 25 points if you call it.</p>
+      <p class="text-ink/50 text-sm mb-6">Which of your Top 8 lifts the trophy? Worth {{ POINTS.pretournament.champion }} points if you call it.</p>
 
       <!-- chosen champion spotlight -->
       <div v-if="winner" class="card bg-gold-soft/60 border-gold/20 p-5 mb-6 flex items-center gap-4 animate-pop">
@@ -157,12 +110,7 @@
       <p class="text-ink/50 text-sm mb-4">Back one underdog to go the distance. The deeper they run, the more you score.</p>
 
       <!-- points ladder -->
-      <div class="flex items-center gap-1.5 mb-6 text-xs font-semibold overflow-x-auto pb-1">
-        <span v-for="(t, i) in ladder" :key="t.label" class="flex items-center gap-1.5 shrink-0">
-          <span class="px-2.5 py-1 rounded-full" :class="i === ladder.length - 1 ? 'bg-gold text-ink' : 'bg-pitch-soft text-pitch-dark'">{{ t.label }} · {{ t.pts }}</span>
-          <span v-if="i < ladder.length - 1" class="text-ink/25">→</span>
-        </span>
-      </div>
+      <DarkHorseLadder class="mb-6" />
 
       <div class="grid sm:grid-cols-2 gap-3">
         <button
@@ -246,7 +194,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import confetti from 'canvas-confetti'
 import { useMatchesStore } from '../stores/matches.js'
+import { POINTS } from '../lib/scoring.js'
 import Flag from '../components/Flag.vue'
+import ScoringExample from '../components/ScoringExample.vue'
+import DarkHorseLadder from '../components/DarkHorseLadder.vue'
 
 const router = useRouter()
 const matchesStore = useMatchesStore()
@@ -258,10 +209,6 @@ const winner = ref(null)
 const darkHorse = ref(null)
 const saving = ref(false)
 const error = ref('')
-
-const ladder = [
-  { label: 'R16', pts: 5 }, { label: 'QF', pts: 10 }, { label: 'SF', pts: 20 }, { label: 'Final', pts: 30 }, { label: 'Champion', pts: 50 },
-]
 
 const groupedTeams = computed(() => {
   const map = new Map()

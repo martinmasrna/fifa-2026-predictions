@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import Icon from './components/Icon.vue'
@@ -67,6 +67,21 @@ const nudgeCopy = computed(() =>
     : `Almost there — finish your pre-tournament picks (${nudgePicksDone.value}/3 done).`
 )
 
+// ── Live refresh ───────────────────────────────────────
+// Match results and per-match points are written by the sync Action while the
+// app is open. Re-pull them periodically (only while the tab is visible) and
+// immediately whenever the user returns to the tab, so finished matches and
+// fresh points appear without a manual reload.
+const LIVE_REFRESH_MS = 45_000
+let liveTimer = null
+
+function tickRefresh() {
+  if (document.visibilityState === 'visible') matchesStore.refreshLive()
+}
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible') matchesStore.refreshLive()
+}
+
 onMounted(async () => {
   syncServerTime() // fire-and-forget; anchors countdown/locks to the server clock
   await auth.init()
@@ -74,6 +89,14 @@ onMounted(async () => {
     await matchesStore.loadReferenceData()
     await matchesStore.loadMatches()
     await matchesStore.loadMyPredictions()
+
+    liveTimer = setInterval(tickRefresh, LIVE_REFRESH_MS)
+    document.addEventListener('visibilitychange', onVisibilityChange)
   }
+})
+
+onUnmounted(() => {
+  if (liveTimer) clearInterval(liveTimer)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>

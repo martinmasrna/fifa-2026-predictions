@@ -9,11 +9,11 @@
         <span>{{ kickoffLabel }}</span>
       </div>
       <div class="flex items-center gap-2">
-        <span v-if="match.status === 'final'" class="badge-final">{{ statusLabel }}</span>
-        <span v-else-if="locked" class="badge-locked">Locked</span>
+        <span v-if="phase === 'final'" class="badge-final">{{ statusLabel }}</span>
+        <span v-else-if="phase === 'live'" class="badge-live"><span class="live-dot"></span>Live</span>
         <span v-else class="badge-open">Open</span>
         <RouterLink
-          v-if="match.status === 'final' || locked"
+          v-if="phase !== 'upcoming'"
           :to="`/matches/${match.match_no}`"
           class="text-xs text-pitch font-semibold hover:underline"
         >Details</RouterLink>
@@ -119,6 +119,15 @@ const lockedByServer = ref(false) // set if a save is rejected because kickoff h
 const now = ref(new Date(serverNow()))
 const locked = computed(() => lockedByServer.value || now.value >= new Date(props.match.kickoff_utc))
 const isKnockout = computed(() => props.match.stage !== 'group')
+
+// Match phase for the status badge: predictions still open, kicked off but no
+// final result yet (live), or finished. We have no minute-by-minute feed, so
+// "live" simply means kickoff has passed and the result isn't in yet.
+const phase = computed(() => {
+  if (props.match.status === 'final') return 'final'
+  if (locked.value) return 'live'
+  return 'upcoming'
+})
 
 const statusLabel = computed(() => {
   if (props.match.p1 != null) return 'Penalties'
