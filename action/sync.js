@@ -24,11 +24,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 })
 
-// openfootball 2026 raw JSON URL (try multiple filenames)
+// openfootball 2026 raw JSON URL (try multiple mirrors)
 const OPENFOOTBALL_URLS = [
-  'https://raw.githubusercontent.com/openfootball/world-cup/master/2026--usa-mexico-canada/worldcup.json',
-  'https://raw.githubusercontent.com/openfootball/world-cup/master/2026/worldcup.json',
-  'https://raw.githubusercontent.com/openfootball/world-cup/master/2026/world-cup.json',
+  'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json',
+  'https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json',
 ]
 
 // Team name normalization: openfootball name → our teams.json name
@@ -77,44 +76,51 @@ async function fetchOpenfootball() {
 // ──────────────────────────────────────────────────────────────
 function parseOpenfootballMatches(data) {
   if (!data) return []
-  const matches = []
 
-  const rounds = data.rounds ?? data.groups ?? []
-  for (const round of rounds) {
-    for (const m of (round.matches ?? [])) {
-      const team1 = normalizeTeamName(
-        typeof m.team1 === 'string' ? m.team1 : (m.team1?.name ?? '')
-      )
-      const team2 = normalizeTeamName(
-        typeof m.team2 === 'string' ? m.team2 : (m.team2?.name ?? '')
-      )
-
-      // Parse scores — openfootball uses score.ft, score.et, score.p arrays
-      // or flat score1/score2 fields
-      let ft1 = null, ft2 = null
-      let et1 = null, et2 = null
-      let p1 = null, p2 = null
-
-      if (m.score) {
-        if (Array.isArray(m.score.ft)) [ft1, ft2] = m.score.ft
-        if (Array.isArray(m.score.et)) [et1, et2] = m.score.et
-        if (Array.isArray(m.score.p))  [p1, p2] = m.score.p
-      } else {
-        if (m.score1 != null) { ft1 = m.score1; ft2 = m.score2 }
-        if (m.score1et != null) { et1 = m.score1et; et2 = m.score2et }
-        if (m.score1p != null) { p1 = m.score1p; p2 = m.score2p }
-      }
-
-      // Parse date + time to ISO
-      let kickoffStr = null
-      if (m.date && m.time) {
-        kickoffStr = `${m.date}T${m.time}:00`
-      } else if (m.date) {
-        kickoffStr = m.date
-      }
-
-      matches.push({ num: m.num, team1, team2, kickoffStr, ft1, ft2, et1, et2, p1, p2 })
+  // The openfootball feed is flat: { name, matches: [...] }. Older/alternate
+  // shapes nest matches under rounds[] or groups[]; support both defensively.
+  let rawMatches
+  if (Array.isArray(data.matches)) {
+    rawMatches = data.matches
+  } else {
+    rawMatches = []
+    for (const round of (data.rounds ?? data.groups ?? [])) {
+      for (const m of (round.matches ?? [])) rawMatches.push(m)
     }
+  }
+
+  const matches = []
+  for (const m of rawMatches) {
+    const team1 = normalizeTeamName(
+      typeof m.team1 === 'string' ? m.team1 : (m.team1?.name ?? '')
+    )
+    const team2 = normalizeTeamName(
+      typeof m.team2 === 'string' ? m.team2 : (m.team2?.name ?? '')
+    )
+
+    // Parse scores — openfootball uses score.ft, score.et, score.p arrays
+    // or flat score1/score2 fields
+    let ft1 = null, ft2 = null
+    let et1 = null, et2 = null
+    let p1 = null, p2 = null
+
+    if (m.score) {
+      if (Array.isArray(m.score.ft)) [ft1, ft2] = m.score.ft
+      if (Array.isArray(m.score.et)) [et1, et2] = m.score.et
+      if (Array.isArray(m.score.p))  [p1, p2] = m.score.p
+    } else {
+      if (m.score1 != null) { ft1 = m.score1; ft2 = m.score2 }
+      if (m.score1et != null) { et1 = m.score1et; et2 = m.score2et }
+      if (m.score1p != null) { p1 = m.score1p; p2 = m.score2p }
+    }
+
+    // openfootball's score.et is the CUMULATIVE score at the end of extra time
+    // (it includes the 90-minute goals). Our scoring model expects ET-only
+    // increments (deriveAdvancer does ft + et), so subtract the ft component.
+    if (et1 != null && ft1 != null) et1 = et1 - ft1
+    if (et2 != null && ft2 != null) et2 = et2 - ft2
+
+    matches.push({ team1, team2, ft1, ft2, et1, et2, p1, p2 })
   }
   return matches
 }
