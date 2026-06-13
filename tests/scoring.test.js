@@ -5,7 +5,39 @@ import {
   deriveAdvancer,
   scoreKnockoutMatch,
   scorePretournament,
+  buildPretournamentResults,
 } from '../src/lib/scoring.js'
+
+describe('buildPretournamentResults', () => {
+  const m = (stage, team1, team2, extra = {}) => ({
+    stage, team1, team2, team1_resolved: true, team2_resolved: true, status: 'scheduled', ...extra,
+  })
+
+  it('collects resolved participants per stage and the final result', () => {
+    const matches = [
+      m('Quarter-final', 'Brazil', 'France'),
+      m('Quarter-final', 'Spain', 'Argentina'),
+      m('Semi-final', 'Brazil', 'Spain'),
+      m('Final', 'Brazil', 'Spain', { status: 'final', advancer: 'Brazil' }),
+    ]
+    const r = buildPretournamentResults(matches)
+    expect(r.quarterFinalists.sort()).toEqual(['Argentina', 'Brazil', 'France', 'Spain'])
+    expect(r.semiFinalists.sort()).toEqual(['Brazil', 'Spain'])
+    expect(r.tournamentWinner).toBe('Brazil')
+    expect(r.runnerUp).toBe('Spain')
+  })
+
+  it('ignores unresolved slots and an unfinished final', () => {
+    const matches = [
+      m('Quarter-final', 'Brazil', '1B', { team2_resolved: false }),
+      m('Final', 'Brazil', 'Spain'), // not final yet
+    ]
+    const r = buildPretournamentResults(matches)
+    expect(r.quarterFinalists).toEqual(['Brazil'])
+    expect(r.tournamentWinner).toBe(null)
+    expect(r.runnerUp).toBe(null)
+  })
+})
 
 // ──────────────────────────────────────────────────────────────
 // getResult

@@ -26,7 +26,7 @@
     <div class="card p-5 mb-6">
       <h2 class="text-lg font-semibold mb-4">Result override</h2>
       <p class="text-sm text-gray-500 mb-4">
-        Sets <code>result_source = manual</code>. Scores update on the next Action run (≤10 min).
+        Sets <code>result_source = manual</code> and rescores this match right away — the leaderboard updates live.
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -212,6 +212,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabase.js'
 import { useMatchesStore } from '../stores/matches.js'
 import { nowMs } from '../lib/serverTime.js'
+import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament, buildPretournamentResults } from '../lib/scoring.js'
 
 const matchesStore = useMatchesStore()
 
@@ -312,14 +313,95 @@ async function applyOverride() {
       .update(update)
       .eq('match_no', overrideMatchNo.value)
     if (error) throw error
-    overrideSuccess.value = 'Result saved. Scores will update on the next sync (≤10 min).'
-    // Refresh local match list
     await matchesStore.loadMatches()
+    // Rescore this match immediately so the leaderboard/match-detail update now.
+    // Best-effort: the saved result is what matters, so if the rescore fails
+    // (e.g. the apply_match_scores migration isn't applied yet) we fall back to
+    // the next Action run rather than report the whole save as failed.
+    try {
+      await rescoreMatch(overrideMatchNo.value)
+      overrideSuccess.value = 'Result saved and scores updated.'
+    } catch (e) {
+      console.warn('Immediate rescore failed; will update on next sync', e)
+      overrideSuccess.value = 'Result saved. Scores will update on the next sync (≤10 min).'
+    }
   } catch (e) {
     overrideError.value = e.message
   } finally {
     overrideSaving.value = false
   }
+}
+
+// Recompute prediction_scores for one match (every member) using the shared
+// scoring module, then persist via the owner-only apply_match_scores RPC. The
+// leaderboard subscribes to prediction_scores, so it updates live for everyone.
+async function rescoreMatch(matchNo) {
+  const match = matchesStore.matchMap.get(matchNo)
+  if (!match || match.status !== 'final') return
+
+  const [membersRes, predsRes] = await Promise.all([
+    supabase.from('members').select('user_id'),
+    supabase.from('predictions').select('user_id, pred1, pred2, pred_advancer').eq('match_no', matchNo),
+  ])
+  if (membersRes.error) throw membersRes.error
+  if (predsRes.error) throw predsRes.error
+
+  const predByUser = new Map((predsRes.data ?? []).map(p => [p.user_id, p]))
+  const isGroup = match.stage === 'group'
+
+  const scores = (membersRes.data ?? []).map(({ user_id }) => {
+    const pred = predByUser.get(user_id)
+    let scoreline = 0, advance = 0
+    if (pred && pred.pred1 != null && pred.pred2 != null) {
+      if (isGroup) {
+        scoreline = scoreGroupMatch({ g1: pred.pred1, g2: pred.pred2 }, { g1: match.ft1, g2: match.ft2 })
+      } else {
+        const r = scoreKnockoutMatch(
+          { g1: pred.pred1, g2: pred.pred2, pred_advancer: pred.pred_advancer },
+          {
+            ft: { g1: match.ft1, g2: match.ft2 },
+            et: match.et1 != null ? { g1: match.et1, g2: match.et2 } : undefined,
+            p: match.p1 != null ? { g1: match.p1, g2: match.p2 } : undefined,
+            team1: match.team1,
+            team2: match.team2,
+          },
+        )
+        scoreline = r.scoreline
+        advance = r.advance
+      }
+    }
+    return { user_id, match_no: matchNo, points: scoreline + advance, scoreline_pts: scoreline, advance_pts: advance }
+  })
+
+  const { error } = await supabase.rpc('apply_match_scores', { p_scores: scores })
+  if (error) throw error
+
+  // A knockout result can change the bracket (who reached the QF/SF/final), which
+  // shifts pre-tournament scoring (Top-8, champion, dark horse). Group results
+  // never affect it, so only rescore pre-tournament for knockouts.
+  if (!isGroup) await rescorePretournament()
+
+  // Reflect the owner's own updated points locally too.
+  await matchesStore.loadMyPredictions()
+}
+
+// Recompute every member's pre-tournament scores from the current bracket state
+// and persist via the owner-only apply_pretournament_scores RPC.
+async function rescorePretournament() {
+  const reality = buildPretournamentResults(matchesStore.matches)
+  const { data: ptPreds, error } = await supabase
+    .from('pretournament_predictions')
+    .select('user_id, top8, winner, dark_horse')
+  if (error) throw error
+
+  const scores = (ptPreds ?? []).map((p) => {
+    const r = scorePretournament({ top8: p.top8, winner: p.winner, dark_horse: p.dark_horse }, reality)
+    return { user_id: p.user_id, top8_pts: r.top8_pts, winner_pts: r.winner_pts, dark_horse_pts: r.dark_horse_pts }
+  })
+  if (!scores.length) return
+
+  const { error: rpcErr } = await supabase.rpc('apply_pretournament_scores', { p_scores: scores })
+  if (rpcErr) throw rpcErr
 }
 
 async function applySlot() {

@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament } from '../src/lib/scoring.js'
+import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament, buildPretournamentResults } from '../src/lib/scoring.js'
 import { rankRows } from '../src/lib/ranking.js'
 import {
   normalizeTeamName,
@@ -244,7 +244,7 @@ async function rescoreAllMembers(finalMatches, matchMap) {
 
     // Pre-tournament scores
     const pt = ptPredMap.get(uid)
-    const ptResults = buildPretournamentResults(matchMap)
+    const ptResults = buildPretournamentResults([...matchMap.values()])
     const { top8_pts, winner_pts, dark_horse_pts } = scorePretournament(pt ?? null, ptResults)
     ptScoreUpserts.push({ user_id: uid, top8_pts, winner_pts, dark_horse_pts })
   }
@@ -266,49 +266,6 @@ async function rescoreAllMembers(finalMatches, matchMap) {
   }
 }
 
-// ──────────────────────────────────────────────────────────────
-// Build pre-tournament results from match data
-// ──────────────────────────────────────────────────────────────
-function buildPretournamentResults(matchMap) {
-  const allMatches = [...matchMap.values()]
-
-  // Quarter-finalists: teams playing QF matches (if both teams are resolved)
-  const qfMatches = allMatches.filter(m => m.stage === 'Quarter-final')
-  const quarterFinalists = []
-  for (const m of qfMatches) {
-    if (m.team1_resolved && m.team1) quarterFinalists.push(m.team1)
-    if (m.team2_resolved && m.team2) quarterFinalists.push(m.team2)
-  }
-
-  // Semi-finalists: teams playing SF matches (if both teams are resolved)
-  const sfMatches = allMatches.filter(m => m.stage === 'Semi-final')
-  const semiFinalists = []
-  for (const m of sfMatches) {
-    if (m.team1_resolved && m.team1) semiFinalists.push(m.team1)
-    if (m.team2_resolved && m.team2) semiFinalists.push(m.team2)
-  }
-
-  // Tournament winner + runner-up: from the Final (match 104)
-  const finalMatch = matchMap.get(104)
-  let tournamentWinner = null
-  let runnerUp = null
-  if (finalMatch?.status === 'final' && finalMatch.advancer) {
-    tournamentWinner = finalMatch.advancer
-    runnerUp = finalMatch.advancer === finalMatch.team1 ? finalMatch.team2 : finalMatch.team1
-  }
-
-  // Round of 16+ teams: teams in matches from R16 onward that are resolved
-  const r16Stages = new Set(['Round of 16', 'Quarter-final', 'Semi-final', 'Third place', 'Final'])
-  const roundOf16Teams = []
-  for (const m of allMatches) {
-    if (r16Stages.has(m.stage)) {
-      if (m.team1_resolved && m.team1) roundOf16Teams.push(m.team1)
-      if (m.team2_resolved && m.team2) roundOf16Teams.push(m.team2)
-    }
-  }
-
-  return { quarterFinalists, semiFinalists, tournamentWinner, runnerUp, roundOf16Teams }
-}
 
 // ──────────────────────────────────────────────────────────────
 // Snapshot standings at round boundaries
