@@ -69,22 +69,19 @@ import Flag from './Flag.vue'
 const matchesStore = useMatchesStore()
 const predMap = computed(() => matchesStore.predMap)
 
-const WINDOW_MS = 72 * 3600 * 1000 // show matches kicking off within the next 3 days
 const now = ref(serverNow())
 
-const upcoming = computed(() => {
-  const n = now.value
-  return matchesStore.matches
-    .filter(m =>
-      m.status !== 'final' &&
-      m.team1_resolved !== false && m.team2_resolved !== false && // skip unresolved knockout slots
-      (() => { const k = new Date(m.kickoff_utc).getTime(); return k > n && k - n <= WINDOW_MS })()
-    )
-    .sort((a, b) => new Date(a.kickoff_utc) - new Date(b.kickoff_utc))
-    .slice(0, 6)
-})
+// pendingCount is the TRUE number of unpicked matches across the whole window
+// (the same set the home attention hero uses) — not just the visible slice, so
+// capping the list can't hide unpicked matches and falsely claim "All picked".
+const pendingCount = computed(() => matchesStore.upcomingPickable(now.value, { onlyUnpicked: true }).length)
 
-const pendingCount = computed(() => upcoming.value.filter(m => !predMap.value.has(m.match_no)).length)
+// Show the matches you still owe first; once you're caught up, fall back to the
+// soonest upcoming fixtures for context. Capped at 6 for display.
+const upcoming = computed(() => {
+  const pending = matchesStore.upcomingPickable(now.value, { onlyUnpicked: true })
+  return (pending.length ? pending : matchesStore.upcomingPickable(now.value)).slice(0, 6)
+})
 
 function kickoffLabel(m) {
   return new Date(m.kickoff_utc).toLocaleString('en-GB', {

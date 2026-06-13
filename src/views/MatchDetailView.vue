@@ -59,7 +59,7 @@
               <th class="text-left px-4 py-3 font-medium">Player</th>
               <th class="text-center px-4 py-3 font-medium">Prediction</th>
               <th v-if="match.stage !== 'group'" class="text-center px-4 py-3 font-medium">Advance</th>
-              <th class="text-right px-4 py-3 font-medium">Points</th>
+              <th class="text-center px-4 py-3 font-medium">Points</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-ink/5">
@@ -70,13 +70,12 @@
             >
               <td class="px-4 py-3 font-semibold" :class="isMe(row) ? 'text-pitch-dark' : ''">
                 {{ row.members?.display_name }}
-                <span v-if="isMe(row)" class="ml-1 text-[11px] font-medium text-pitch">(you)</span>
               </td>
               <td class="px-4 py-3 text-center font-display tnum font-bold">{{ row.pred1 }}–{{ row.pred2 }}</td>
               <td v-if="match.stage !== 'group'" class="px-4 py-3 text-center text-xs text-ink/60">
                 {{ row.pred_advancer ?? (row.pred1 > row.pred2 ? match.team1 : row.pred1 < row.pred2 ? match.team2 : '—') }}
               </td>
-              <td class="px-4 py-3 text-right">
+              <td class="px-4 py-3 text-center">
                 <span v-if="scoreMap.get(row.user_id) != null" class="badge-points">+{{ scoreMap.get(row.user_id) }}</span>
                 <span v-else class="text-ink/25">—</span>
               </td>
