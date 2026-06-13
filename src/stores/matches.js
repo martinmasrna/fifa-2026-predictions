@@ -33,6 +33,47 @@ export const useMatchesStore = defineStore('matches', () => {
       .sort((a, b) => new Date(a.kickoff_utc) - new Date(b.kickoff_utc))
   )
 
+  // Teams that have reached the quarter-finals (resolved QF participants) —
+  // used to gold-ring Top-8 picks that made it.
+  const quarterFinalTeams = computed(() => {
+    const s = new Set()
+    for (const m of matches.value) {
+      if (m.stage !== 'Quarter-final') continue
+      if (m.team1_resolved) s.add(m.team1)
+      if (m.team2_resolved) s.add(m.team2)
+    }
+    return s
+  })
+
+  // Teams out of the tournament: lost a completed knockout tie, or — once the
+  // Round of 32 is fully drawn — a group team that didn't make the bracket.
+  // (Group-stage eliminations only show once the bracket is set, to avoid false
+  // positives mid-draw.)
+  const eliminatedTeams = computed(() => {
+    const out = new Set()
+    for (const m of matches.value) {
+      if (m.stage === 'group') continue
+      if (m.status === 'final' && m.advancer && m.team1_resolved && m.team2_resolved) {
+        out.add(m.advancer === m.team1 ? m.team2 : m.team1)
+      }
+    }
+    const r32 = matches.value.filter(m => m.stage === 'Round of 32')
+    const bracketSet = r32.length > 0 && r32.every(m => m.team1_resolved && m.team2_resolved)
+    if (bracketSet) {
+      const inBracket = new Set()
+      for (const m of matches.value) {
+        if (m.stage === 'group') continue
+        if (m.team1_resolved) inBracket.add(m.team1)
+        if (m.team2_resolved) inBracket.add(m.team2)
+      }
+      for (const m of matches.value) {
+        if (m.stage !== 'group') continue
+        for (const t of [m.team1, m.team2]) if (t && !inBracket.has(t)) out.add(t)
+      }
+    }
+    return out
+  })
+
   // The single definition of "locking soon": matches still open for prediction
   // that kick off within the window, sorted by kickoff. Shared by the home
   // attention hero and the "Locking soon" card so they never disagree. Callers
@@ -219,6 +260,7 @@ export const useMatchesStore = defineStore('matches', () => {
   return {
     matches, schedule, predictions, scores, pretournament, teams, darkHorseTeams,
     loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches, upcomingPickable,
+    quarterFinalTeams, eliminatedTeams,
     loadReferenceData, loadMatches, loadMyPredictions, loadAppData, reset, refreshLive,
     savePrediction, savePretournament, loadMatchPredictions, loadMatchScores,
   }

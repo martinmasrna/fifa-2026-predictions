@@ -12,12 +12,12 @@
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
           <NavLink to="/tournament">Tournament</NavLink>
-          <NavLink to="/my-picks">My Picks</NavLink>
+          <NavLink to="/profile">Profile</NavLink>
           <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
         </div>
 
         <div class="flex items-center gap-3">
-          <span class="hidden sm:block text-sm font-medium text-ink/80">{{ auth.member?.display_name }}</span>
+          <RouterLink to="/profile" class="hidden sm:block text-sm font-medium text-ink/80 hover:text-pitch transition-colors">{{ auth.member?.display_name }}</RouterLink>
           <span class="hidden sm:block w-px h-5 bg-ink/15"></span>
           <button
             @click="signOut"
@@ -35,7 +35,7 @@
           <NavLink to="/">Leaderboard</NavLink>
           <NavLink to="/matches">Matches</NavLink>
           <NavLink to="/tournament">Tournament</NavLink>
-          <NavLink to="/my-picks">My Picks</NavLink>
+          <NavLink to="/profile">Profile</NavLink>
           <NavLink v-if="auth.isOwner" to="/admin">Admin</NavLink>
         </div>
         <!-- right-edge fade signals there's more to scroll -->

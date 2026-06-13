@@ -13,7 +13,8 @@ const routes = [
   // Back-compat redirects for old bookmarks
   { path: '/standings',  redirect: '/tournament' },
   { path: '/bracket',    redirect: { path: '/tournament', query: { tab: 'bracket' } } },
-  { path: '/my-picks',   name: 'my-picks',   component: () => import('../views/MyPicksView.vue') },
+  { path: '/profile',    name: 'profile',    component: () => import('../views/ProfileView.vue') },
+  { path: '/my-picks',   redirect: '/profile' }, // merged into Profile
   { path: '/admin',      name: 'admin',      component: () => import('../views/AdminView.vue'),       meta: { ownerOnly: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

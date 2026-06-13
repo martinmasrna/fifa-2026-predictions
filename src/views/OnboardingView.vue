@@ -133,7 +133,7 @@
     <div v-if="step === 4" class="max-w-2xl mx-auto text-center animate-fade-in">
       <div class="text-5xl mb-3 animate-pop">🎉</div>
       <h2 class="font-display font-extrabold text-3xl mb-1">You're locked in!</h2>
-      <p class="text-ink/50 text-sm mb-8">You can tweak your picks from <span class="font-semibold text-ink/70">My Picks</span> right up until the first whistle.</p>
+      <p class="text-ink/50 text-sm mb-8">You can tweak your picks from <span class="font-semibold text-ink/70">Profile</span> right up until the first whistle.</p>
 
       <div class="card p-6 text-left space-y-6">
         <div>
