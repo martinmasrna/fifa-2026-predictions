@@ -63,8 +63,35 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
     return data?.[0]?.round_key ?? null
   }
 
+  // A user's rank at the latest snapshotted round and how it changed vs the
+  // round before (delta > 0 = climbed). Returns nulls if there aren't snapshots
+  // to compare yet.
+  async function loadRankDelta(userId) {
+    const round = await loadLatestCompletedRound()
+    if (!round) return { round: null, rank: null, delta: null }
+
+    const cur = await loadRoundRecap(round)
+    const rank = cur.find(s => s.user_id === userId)?.rank ?? null
+
+    const { data: allSnaps } = await supabase
+      .from('standings_snapshots')
+      .select('round_key, captured_at')
+      .order('captured_at', { ascending: false })
+      .limit(60)
+    const rounds = [...new Set((allSnaps ?? []).map(s => s.round_key))]
+    const prevKey = rounds[rounds.indexOf(round) + 1] ?? null
+
+    let delta = null
+    if (prevKey && rank != null) {
+      const prev = await loadRoundRecap(prevKey)
+      const prevRank = prev.find(s => s.user_id === userId)?.rank
+      if (prevRank != null) delta = prevRank - rank
+    }
+    return { round, rank, delta }
+  }
+
   return {
     rows, rankedRows, loading,
-    load, subscribeRealtime, unsubscribeRealtime, loadRoundRecap, loadLatestCompletedRound,
+    load, subscribeRealtime, unsubscribeRealtime, loadRoundRecap, loadLatestCompletedRound, loadRankDelta,
   }
 })
