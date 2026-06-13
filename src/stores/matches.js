@@ -33,6 +33,24 @@ export const useMatchesStore = defineStore('matches', () => {
       .sort((a, b) => new Date(a.kickoff_utc) - new Date(b.kickoff_utc))
   )
 
+  // The single definition of "locking soon": matches still open for prediction
+  // that kick off within the window, sorted by kickoff. Shared by the home
+  // attention hero and the "Locking soon" card so they never disagree. Callers
+  // pass the current time (their own ticking clock) for reactivity.
+  const UPCOMING_WINDOW_MS = 24 * 3600 * 1000 // next 24 hours
+  function upcomingPickable(nowMs, { onlyUnpicked = false } = {}) {
+    return matches.value
+      .filter(m => {
+        if (m.status === 'final') return false
+        if (m.team1_resolved === false || m.team2_resolved === false) return false // unresolved knockout slot
+        const k = new Date(m.kickoff_utc).getTime()
+        if (k <= nowMs || k - nowMs > UPCOMING_WINDOW_MS) return false
+        if (onlyUnpicked && predMap.value.has(m.match_no)) return false
+        return true
+      })
+      .sort((a, b) => new Date(a.kickoff_utc) - new Date(b.kickoff_utc))
+  }
+
   async function loadReferenceData() {
     const base = import.meta.env.BASE_URL
     const [s, t, d] = await Promise.all([
@@ -200,7 +218,7 @@ export const useMatchesStore = defineStore('matches', () => {
 
   return {
     matches, schedule, predictions, scores, pretournament, teams, darkHorseTeams,
-    loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches,
+    loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches, upcomingPickable,
     loadReferenceData, loadMatches, loadMyPredictions, loadAppData, reset, refreshLive,
     savePrediction, savePretournament, loadMatchPredictions, loadMatchScores,
   }

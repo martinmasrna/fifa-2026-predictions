@@ -1,5 +1,10 @@
 <template>
-  <div v-if="recap" class="hero-grad text-white rounded-2xl p-5 md:p-6 shadow-card animate-fade-in">
+  <div v-if="recap" class="hero-grad text-white rounded-2xl p-5 md:p-6 shadow-card animate-fade-in relative">
+    <button
+      @click="$emit('dismiss')"
+      class="absolute top-3 right-3 text-white/50 hover:text-white text-lg leading-none p-1"
+      aria-label="Dismiss"
+    >✕</button>
     <div class="flex items-center gap-2.5 mb-4">
       <span class="gold-rule"></span>
       <span class="text-xs font-bold uppercase tracking-[0.16em] text-white/75">
@@ -37,6 +42,7 @@ import { supabase } from '../lib/supabase.js'
 const props = defineProps({
   roundKey: { type: String, required: true },
 })
+defineEmits(['dismiss'])
 
 const lb = useLeaderboardStore()
 const recap = ref(null)

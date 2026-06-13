@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
-    <!-- Round recap banner -->
-    <RoundRecap v-if="recapRound" :round-key="recapRound" />
+    <!-- Round recap — a once-per-round welcome, not a permanent fixture -->
+    <RoundRecap v-if="recapRound" :round-key="recapRound" @dismiss="recapRound = null" />
 
     <!-- ══ PRE-KICKOFF STATE ══════════════════════════════ -->
     <template v-if="!pretournamentLocked">
@@ -123,7 +123,32 @@
         </div>
       </div>
 
-      <UpcomingMatches />
+      <!-- Needs-your-attention bar: only when picks are actually owed. Warm
+           orange (a deadline "heads-up", distinct from gold/green) with a live
+           pulse. The fixture list lives on /matches. -->
+      <RouterLink
+        v-if="pendingPicks.length"
+        to="/matches"
+        class="card p-4 sm:p-5 flex items-center gap-4 border border-orange-200 bg-orange-100 hover:bg-orange-200/70 transition-colors"
+      >
+        <span class="relative shrink-0 w-10 h-10 rounded-xl bg-orange-200 text-orange-700 grid place-items-center">
+          <Icon name="timer" :size="20" />
+          <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white animate-pulse"></span>
+        </span>
+
+        <div class="flex-1 min-w-0">
+          <div class="font-display font-bold text-ink">
+            You've got {{ pendingPicks.length }} pick{{ pendingPicks.length === 1 ? '' : 's' }} to make
+          </div>
+          <div class="text-sm text-ink/55 truncate">
+            Next locks in <span class="text-orange-700 font-semibold">{{ nextLockIn }}</span>
+            · {{ pendingPicks[0].team1 }} v {{ pendingPicks[0].team2 }}
+          </div>
+        </div>
+
+        <span class="btn btn-sm shrink-0 bg-orange-600 text-white hover:bg-orange-700 hidden sm:inline-flex">Make picks →</span>
+        <span class="text-orange-500 text-xl shrink-0 sm:hidden">→</span>
+      </RouterLink>
 
       <div v-if="lb.loading && rankedRows.length === 0" class="card p-4 space-y-3.5">
         <div v-for="n in 6" :key="n" class="flex items-center gap-3">
@@ -252,6 +277,25 @@ const cd = computed(() => {
   return { d: p(d), h: p(h), m: p(m), s: p(s) }
 })
 
+// ── Needs-your-attention hero ──────────────────────────
+// Unpicked matches locking within the window (shared definition with the
+// "Locking soon" card via the store). `now` already ticks every second below.
+const pendingPicks = computed(() => matchesStore.upcomingPickable(now.value, { onlyUnpicked: true }))
+const nextLockMs = computed(() =>
+  pendingPicks.value.length ? new Date(pendingPicks.value[0].kickoff_utc).getTime() : null,
+)
+const nextLockIn = computed(() => {
+  if (nextLockMs.value == null) return ''
+  let d = nextLockMs.value - now.value
+  if (d <= 0) return 'moments'
+  const days = Math.floor(d / 86400000); d -= days * 86400000
+  const h = Math.floor(d / 3600000); d -= h * 3600000
+  const m = Math.floor(d / 60000)
+  if (days > 0) return `${days}d ${h}h`
+  if (h > 0) return `${h}h ${m}m`
+  return `${m}m`
+})
+
 const featuredMatch = computed(() =>
   matchesStore.matchMap.get(1) ?? matchesStore.matches[0] ?? null
 )
@@ -262,12 +306,24 @@ const featuredDate = computed(() => {
   })
 })
 
+// Show a round recap only the first time you land here after that round
+// completed — afterwards it stays out of the way so the actionable surfaces own
+// the top. "Seen" is remembered per round in localStorage.
+const RECAP_SEEN_KEY = 'fifa.seenRoundRecap'
+function readSeenRecap() { try { return localStorage.getItem(RECAP_SEEN_KEY) } catch { return null } }
+function markRecapSeen(round) { try { localStorage.setItem(RECAP_SEEN_KEY, round) } catch { /* ignore */ } }
+
 let timer = null
 onMounted(async () => {
   timer = setInterval(() => { now.value = serverNow() }, 1000)
   await lb.load()
   lb.subscribeRealtime()
-  recapRound.value = await lb.loadLatestCompletedRound()
+
+  const latest = await lb.loadLatestCompletedRound()
+  if (latest && readSeenRecap() !== latest) {
+    recapRound.value = latest
+    markRecapSeen(latest)
+  }
 })
 onUnmounted(() => {
   clearInterval(timer)
