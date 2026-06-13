@@ -177,3 +177,40 @@ export function scorePretournament(prediction, reality) {
 
   return { top8_pts, winner_pts, dark_horse_pts }
 }
+
+/**
+ * Derive the pre-tournament "reality" (which teams reached which stage) from the
+ * current match data — the input scorePretournament needs. Shared by the GitHub
+ * Action and the Admin's immediate rescore so both agree.
+ *
+ * A team counts as having reached a stage once it's a *resolved* participant of
+ * a match in that stage.
+ *
+ * @param {Array<{stage:string, team1:string, team2:string, team1_resolved:boolean, team2_resolved:boolean, status:string, advancer?:string}>} matches
+ */
+export function buildPretournamentResults(matches) {
+  const teamsWhere = (pred) => {
+    const out = []
+    for (const m of matches) {
+      if (!pred(m)) continue
+      if (m.team1_resolved && m.team1) out.push(m.team1)
+      if (m.team2_resolved && m.team2) out.push(m.team2)
+    }
+    return out
+  }
+
+  const quarterFinalists = teamsWhere(m => m.stage === 'Quarter-final')
+  const semiFinalists = teamsWhere(m => m.stage === 'Semi-final')
+  const r16Stages = new Set(['Round of 16', 'Quarter-final', 'Semi-final', 'Third place', 'Final'])
+  const roundOf16Teams = teamsWhere(m => r16Stages.has(m.stage))
+
+  const finalMatch = matches.find(m => m.stage === 'Final')
+  let tournamentWinner = null
+  let runnerUp = null
+  if (finalMatch?.status === 'final' && finalMatch.advancer) {
+    tournamentWinner = finalMatch.advancer
+    runnerUp = finalMatch.advancer === finalMatch.team1 ? finalMatch.team2 : finalMatch.team1
+  }
+
+  return { quarterFinalists, semiFinalists, tournamentWinner, runnerUp, roundOf16Teams }
+}
