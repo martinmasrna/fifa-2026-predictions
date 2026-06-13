@@ -1,11 +1,15 @@
 <template>
-  <transition name="fade">
-    <div
-      v-if="open"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      @click.self="$emit('close')"
-    >
-      <div class="card w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden">
+  <!-- Teleport to body so the fixed overlay is measured from the viewport, not
+       from an animated ancestor (animate-fade-in holds a transform, which would
+       otherwise become the containing block and clip the overlay). -->
+  <Teleport to="body">
+    <transition name="fade">
+      <div
+        v-if="open"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        @click.self="$emit('close')"
+      >
+        <div class="card w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         <!-- Header -->
         <div class="flex items-center justify-between px-5 pt-4 pb-3">
           <div class="flex items-center gap-2.5">
@@ -62,9 +66,10 @@
         <div class="px-5 py-3 border-t border-ink/10 bg-pitch-soft/30 text-xs text-ink/55">
           <span class="font-semibold text-ink/70">Ties:</span> level on points? Most correct results wins, then most exact scorelines.
         </div>
+        </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </Teleport>
 </template>
 
 <script setup>
