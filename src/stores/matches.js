@@ -60,6 +60,25 @@ export const useMatchesStore = defineStore('matches', () => {
     ].sort((a, b) => new Date(a.kickoff_utc) - new Date(b.kickoff_utc))
   }
 
+  // Load everything the signed-in app needs, in dependency order: static
+  // reference data first (loadMatches merges against the schedule), then the
+  // live matches, then the current user's predictions/scores.
+  async function loadAppData() {
+    await loadReferenceData()
+    await loadMatches()
+    await loadMyPredictions()
+  }
+
+  // Clear per-session state on sign-out (or user switch) so the next user never
+  // sees the previous one's matches/picks. Static reference data is global and
+  // intentionally left in place.
+  function reset() {
+    matches.value = []
+    predictions.value = []
+    scores.value = []
+    pretournament.value = null
+  }
+
   async function loadMyPredictions() {
     const auth = useAuthStore()
     if (!auth.session) return
@@ -182,7 +201,7 @@ export const useMatchesStore = defineStore('matches', () => {
   return {
     matches, schedule, predictions, scores, pretournament, teams, darkHorseTeams,
     loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches,
-    loadReferenceData, loadMatches, loadMyPredictions, refreshLive,
+    loadReferenceData, loadMatches, loadMyPredictions, loadAppData, reset, refreshLive,
     savePrediction, savePretournament, loadMatchPredictions, loadMatchScores,
   }
 })

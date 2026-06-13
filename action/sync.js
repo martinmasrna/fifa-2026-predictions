@@ -7,8 +7,16 @@ import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament, deriveAdvancer } from '../src/lib/scoring.js'
+import { scoreGroupMatch, scoreKnockoutMatch, scorePretournament } from '../src/lib/scoring.js'
 import { rankRows } from '../src/lib/ranking.js'
+import {
+  normalizeTeamName,
+  parseOpenfootballMatches,
+  buildMatchLookup,
+  matchNoFor,
+  resolveKnockoutSlots,
+  buildResultUpdate,
+} from './feed.js'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const dataDir = join(__dir, '../public/data')
@@ -31,28 +39,6 @@ const OPENFOOTBALL_URLS = [
   'https://raw.githubusercontent.com/openfootball/world-cup.json/master/2026/worldcup.json',
 ]
 
-// Team name normalization: openfootball name → our teams.json name
-const TEAM_NAME_MAP = {
-  "Côte d'Ivoire": 'Ivory Coast',
-  "Cote d'Ivoire": 'Ivory Coast',
-  'Korea Republic': 'South Korea',
-  'Republic of Korea': 'South Korea',
-  'Bosnia and Herzegovina': 'Bosnia & Herzegovina',
-  'Bosnia-Herzegovina': 'Bosnia & Herzegovina',
-  'Cabo Verde': 'Cape Verde',
-  'Congo DR': 'DR Congo',
-  'Democratic Republic of Congo': 'DR Congo',
-  'DR Congo': 'DR Congo',
-  'Curacao': 'Curaçao',
-  'United States': 'USA',
-  'United States of America': 'USA',
-  'IR Iran': 'Iran',
-}
-
-function normalizeTeamName(name) {
-  return TEAM_NAME_MAP[name] ?? name
-}
-
 // ──────────────────────────────────────────────────────────────
 // Fetch openfootball data
 // ──────────────────────────────────────────────────────────────
@@ -73,75 +59,6 @@ async function fetchOpenfootball() {
 }
 
 // ──────────────────────────────────────────────────────────────
-// Parse openfootball matches into a flat list
-// ──────────────────────────────────────────────────────────────
-function parseOpenfootballMatches(data) {
-  if (!data) return []
-
-  // The openfootball feed is flat: { name, matches: [...] }. Older/alternate
-  // shapes nest matches under rounds[] or groups[]; support both defensively.
-  let rawMatches
-  if (Array.isArray(data.matches)) {
-    rawMatches = data.matches
-  } else {
-    rawMatches = []
-    for (const round of (data.rounds ?? data.groups ?? [])) {
-      for (const m of (round.matches ?? [])) rawMatches.push(m)
-    }
-  }
-
-  const matches = []
-  for (const m of rawMatches) {
-    const team1 = normalizeTeamName(
-      typeof m.team1 === 'string' ? m.team1 : (m.team1?.name ?? '')
-    )
-    const team2 = normalizeTeamName(
-      typeof m.team2 === 'string' ? m.team2 : (m.team2?.name ?? '')
-    )
-
-    // Parse scores — openfootball uses score.ft, score.et, score.p arrays
-    // or flat score1/score2 fields
-    let ft1 = null, ft2 = null
-    let et1 = null, et2 = null
-    let p1 = null, p2 = null
-
-    if (m.score) {
-      if (Array.isArray(m.score.ft)) [ft1, ft2] = m.score.ft
-      if (Array.isArray(m.score.et)) [et1, et2] = m.score.et
-      if (Array.isArray(m.score.p))  [p1, p2] = m.score.p
-    } else {
-      if (m.score1 != null) { ft1 = m.score1; ft2 = m.score2 }
-      if (m.score1et != null) { et1 = m.score1et; et2 = m.score2et }
-      if (m.score1p != null) { p1 = m.score1p; p2 = m.score2p }
-    }
-
-    // openfootball's score.et is the CUMULATIVE score at the end of extra time
-    // (it includes the 90-minute goals). Our scoring model expects ET-only
-    // increments (deriveAdvancer does ft + et), so subtract the ft component.
-    if (et1 != null && ft1 != null) et1 = et1 - ft1
-    if (et2 != null && ft2 != null) et2 = et2 - ft2
-
-    matches.push({ team1, team2, ft1, ft2, et1, et2, p1, p2 })
-  }
-  return matches
-}
-
-// ──────────────────────────────────────────────────────────────
-// Match openfootball entry to our schedule by team names + approx date
-// ──────────────────────────────────────────────────────────────
-function buildMatchLookup(schedule) {
-  // key: "TeamA|TeamB" (sorted) → match_no
-  const byTeams = new Map()
-  for (const m of schedule) {
-    if (m.stage === 'group') {
-      const key = [m.team1, m.team2].sort().join('|')
-      byTeams.set(key, m.match_no)
-    }
-  }
-  return byTeams
-}
-
-// ──────────────────────────────────────────────────────────────
 // Main sync loop
 // ──────────────────────────────────────────────────────────────
 async function main() {
@@ -151,33 +68,41 @@ async function main() {
   try {
     // Load reference data
     const schedule = JSON.parse(readFileSync(join(dataDir, 'schedule.json'), 'utf8'))
+    const teams = JSON.parse(readFileSync(join(dataDir, 'teams.json'), 'utf8'))
+    // Real, known team names — used to tell a resolved knockout slot ("Mexico")
+    // from an unresolved one ("2A", "3A/B/C/D/F") in the feed.
+    const knownTeams = new Set(teams.map(t => normalizeTeamName(t.name)))
 
     // Fetch openfootball
     const ofData = await fetchOpenfootball()
     const ofMatches = parseOpenfootballMatches(ofData)
     console.log(`Parsed ${ofMatches.length} openfootball matches`)
 
-    // Fetch current matches from Supabase (to check result_source)
+    // Fetch current matches from Supabase (to check result_source + resolution)
     const { data: dbMatches, error: matchErr } = await supabase
       .from('matches')
-      .select('match_no, result_source, ft1, ft2, status, team1, team2, stage, kickoff_utc')
+      .select('match_no, result_source, ft1, ft2, status, team1, team2, team1_resolved, team2_resolved, stage, kickoff_utc')
     if (matchErr) throw matchErr
 
     const dbMatchMap = new Map(dbMatches.map(m => [m.match_no, m]))
     const teamLookup = buildMatchLookup(schedule)
 
-    // Step 1: Upsert schedule from our local schedule.json (initial load / knockout slot updates)
-    // For group matches we know the teams upfront. For knockout we update as feed resolves them.
-    const scheduleUpserts = schedule.map(m => ({
-      match_no: m.match_no,
-      stage: m.stage,
-      group: m.group ?? null,
-      round_label: m.round_label,
-      team1: m.team1,
-      team2: m.team2,
-      kickoff_utc: m.kickoff_utc,
-      ground: m.ground,
-    }))
+    // Step 1: Upsert static schedule metadata. Crucially, preserve any knockout
+    // team that's already resolved (by the feed or by an Admin) — otherwise this
+    // would reset it back to the slot code (e.g. "2A") on every run.
+    const scheduleUpserts = schedule.map(m => {
+      const db = dbMatchMap.get(m.match_no)
+      return {
+        match_no: m.match_no,
+        stage: m.stage,
+        group: m.group ?? null,
+        round_label: m.round_label,
+        team1: db?.team1_resolved ? db.team1 : m.team1,
+        team2: db?.team2_resolved ? db.team2 : m.team2,
+        kickoff_utc: m.kickoff_utc,
+        ground: m.ground,
+      }
+    })
 
     // Upsert static schedule data (do not overwrite result/status fields here)
     const { error: schErr } = await supabase.from('matches').upsert(scheduleUpserts, {
@@ -186,68 +111,29 @@ async function main() {
     })
     if (schErr) throw schErr
 
-    // Step 2: Apply openfootball results
+    // Step 1.5: Resolve knockout team slots as the feed reveals real names
+    // ("2A" → "Mexico"). Manual Admin resolution is never overwritten.
+    const slotUpdates = resolveKnockoutSlots(ofMatches, dbMatchMap, knownTeams)
+    if (slotUpdates.length > 0) {
+      const { error: slotErr } = await supabase.from('matches').upsert(slotUpdates, {
+        onConflict: 'match_no',
+      })
+      if (slotErr) throw slotErr
+      console.log(`Resolved ${slotUpdates.length} knockout slot(s)`)
+      // Reflect resolutions locally so the result step sees the real teams.
+      for (const u of slotUpdates) Object.assign(dbMatchMap.get(u.match_no), u)
+    }
+
+    // Step 2: Apply openfootball results. Group matches match on team-pair;
+    // knockout matches match on the feed's match number (== our match_no).
+    const now = new Date().toISOString()
     const resultUpdates = []
     for (const of_m of ofMatches) {
-      const key = [of_m.team1, of_m.team2].sort().join('|')
-      const matchNo = teamLookup.get(key)
-      if (!matchNo) continue  // knockout or unmatched — skip for now
+      const matchNo = matchNoFor(of_m, teamLookup)
+      if (matchNo == null) continue
 
-      const db = dbMatchMap.get(matchNo)
-      if (!db) continue
-
-      // Skip if manually overridden
-      if (db.result_source === 'manual') continue
-
-      // Only update if scores are present
-      if (of_m.ft1 == null) continue
-
-      const isGroupMatch = db.stage === 'group'
-      const isKnockout = !isGroupMatch
-
-      // Determine status and advancer
-      let status = 'scheduled'
-      let advancer = null
-
-      if (of_m.ft1 != null) {
-        const ftDecisive = of_m.ft1 !== of_m.ft2
-        if (isGroupMatch) {
-          status = 'final'
-        } else if (isKnockout) {
-          if (ftDecisive) {
-            status = 'final'
-            advancer = of_m.ft1 > of_m.ft2 ? db.team1 : db.team2
-          } else if (of_m.et1 != null) {
-            const agg1 = of_m.ft1 + of_m.et1
-            const agg2 = of_m.ft2 + of_m.et2
-            if (agg1 !== agg2) {
-              status = 'final'
-              advancer = agg1 > agg2 ? db.team1 : db.team2
-            } else if (of_m.p1 != null) {
-              status = 'final'
-              advancer = of_m.p1 > of_m.p2 ? db.team1 : db.team2
-            }
-          } else if (of_m.p1 != null) {
-            status = 'final'
-            advancer = of_m.p1 > of_m.p2 ? db.team1 : db.team2
-          }
-        }
-      }
-
-      if (status !== 'final') continue  // not yet complete
-
-      resultUpdates.push({
-        match_no: matchNo,
-        ft1: of_m.ft1,
-        ft2: of_m.ft2,
-        et1: of_m.et1 ?? null,
-        et2: of_m.et2 ?? null,
-        p1: of_m.p1 ?? null,
-        p2: of_m.p2 ?? null,
-        advancer,
-        status,
-        updated_at: new Date().toISOString(),
-      })
+      const update = buildResultUpdate(of_m, dbMatchMap.get(matchNo), knownTeams)
+      if (update) resultUpdates.push({ ...update, updated_at: now })
     }
 
     if (resultUpdates.length > 0) {

@@ -121,12 +121,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
-import { useMatchesStore } from '../stores/matches.js'
 import Icon from '../components/Icon.vue'
 import { CONFIG, QUOTES } from '../config.js'
 
 const auth = useAuthStore()
-const matchesStore = useMatchesStore()
 const router = useRouter()
 const email = ref('')
 const password = ref('')
@@ -191,15 +189,9 @@ async function submit() {
   try {
     if (mode.value === 'signin') {
       await auth.signIn(email.value, password.value)
-      if (auth.member) {
-        // Load their data, then go home
-        await matchesStore.loadReferenceData()
-        await matchesStore.loadMatches()
-        await matchesStore.loadMyPredictions()
-        router.push('/')
-      } else {
-        router.push('/join')
-      }
+      // Data loading is owned centrally in App.vue (a watcher keyed on the
+      // session), so here we only route based on membership.
+      router.push(auth.member ? '/' : '/join')
     } else if (mode.value === 'signup') {
       await auth.signUp(email.value, password.value)
       router.push('/join')

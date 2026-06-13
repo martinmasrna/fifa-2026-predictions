@@ -37,12 +37,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
-import { useMatchesStore } from '../stores/matches.js'
 import { MATCH_1_KICKOFF, CONFIG } from '../config.js'
 import { serverNow, syncServerTime } from '../lib/serverTime.js'
 
 const auth = useAuthStore()
-const matchesStore = useMatchesStore()
 const router = useRouter()
 
 const joinCode = ref('')
@@ -61,7 +59,8 @@ async function submit() {
   try {
     await auth.join(joinCode.value, displayName.value)
     auth.pendingDisplayName = ''
-    await matchesStore.loadMyPredictions()
+    // Match data is loaded centrally (App.vue) when the session was established;
+    // a brand-new member has no predictions yet, so nothing to fetch here.
 
     await syncServerTime()
     const locked = serverNow() >= new Date(MATCH_1_KICKOFF).getTime()
