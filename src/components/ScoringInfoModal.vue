@@ -26,7 +26,7 @@
         </div>
 
         <!-- Body -->
-        <div class="px-5 py-4 overflow-y-auto">
+        <div class="px-5 py-4 overflow-y-auto flex-1 min-h-0">
           <!-- Match scoring -->
           <div v-if="tab === 'match'" class="space-y-4">
             <p class="text-sm text-ink/55">Call the full-time score of every match — the closer you get, the more you score.</p>
@@ -56,6 +56,11 @@
               <DarkHorseLadder orientation="vertical" />
             </div>
           </div>
+        </div>
+
+        <!-- Tiebreakers — applies to the whole leaderboard, shown on both tabs -->
+        <div class="px-5 py-3 border-t border-ink/10 bg-pitch-soft/30 text-xs text-ink/55">
+          <span class="font-semibold text-ink/70">Ties:</span> level on points? Most correct results wins, then most exact scorelines.
         </div>
       </div>
     </div>
