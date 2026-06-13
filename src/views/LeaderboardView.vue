@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
-    <!-- Round recap — a once-per-round welcome, not a permanent fixture -->
-    <RoundRecap v-if="recapRound" :round-key="recapRound" @dismiss="recapRound = null" />
+    <!-- Welcome recap — auto once per round (scorecard), reopenable as the grid -->
+    <WelcomeRecap v-if="showRecap && latestRound" :round-key="latestRound" :initial-view="recapView" @dismiss="showRecap = false" />
 
     <!-- ══ PRE-KICKOFF STATE ══════════════════════════════ -->
     <template v-if="!pretournamentLocked">
@@ -117,6 +117,9 @@
         <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Leaderboard</h1></div>
         <div class="flex items-center gap-3">
           <span v-if="lb.loading" class="flex items-center gap-1.5 text-xs text-pitch font-semibold"><span class="w-2 h-2 rounded-full bg-pitch animate-pulse"></span> updating</span>
+          <button v-if="latestRound" @click="recapView = 'grid'; showRecap = true" class="btn-secondary btn-sm whitespace-nowrap">
+            <Icon name="trophy" :size="14" /> Recap
+          </button>
           <button @click="showScoring = true" class="btn-secondary btn-sm whitespace-nowrap">
             <Icon name="eye" :size="14" /> Scoring
           </button>
@@ -173,7 +176,7 @@
               <th class="text-center py-3 hidden md:table-cell font-medium">Pre</th>
               <th class="text-center py-3 hidden sm:table-cell font-medium">Group</th>
               <th class="text-center py-3 hidden sm:table-cell font-medium">KO</th>
-              <th class="text-right py-3 pr-5">Total</th>
+              <th class="text-center py-3">Total</th>
             </tr>
           </thead>
           <tbody class="tnum">
@@ -192,12 +195,11 @@
               </td>
               <td class="py-3.5 px-1 font-semibold" :class="isMe(row) ? 'text-pitch-dark' : ''">
                 {{ row.display_name }}
-                <span v-if="isMe(row)" class="text-[11px] font-medium text-pitch">(you)</span>
               </td>
               <td class="text-center py-3.5 text-ink/50 hidden md:table-cell">{{ row.pretournament_pts }}</td>
               <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.group_pts }}</td>
               <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.knockout_pts }}</td>
-              <td class="text-right py-3.5 pr-5 font-display font-extrabold text-base"
+              <td class="text-center py-3.5 font-display font-extrabold text-base"
                   :class="row.rank === 1 ? 'text-gold-dark' : isMe(row) ? 'text-pitch-dark' : 'text-ink'">
                 {{ row.grand_total }}
               </td>
@@ -221,7 +223,7 @@ import { useAuthStore } from '../stores/auth.js'
 import { useMatchesStore } from '../stores/matches.js'
 import { MATCH_1_KICKOFF, CONFIG } from '../config.js'
 import { serverNow } from '../lib/serverTime.js'
-import RoundRecap from '../components/RoundRecap.vue'
+import WelcomeRecap from '../components/WelcomeRecap.vue'
 import UpcomingMatches from '../components/UpcomingMatches.vue'
 import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
@@ -231,7 +233,9 @@ import { flagUrl } from '../lib/flags.js'
 const lb = useLeaderboardStore()
 const auth = useAuthStore()
 const matchesStore = useMatchesStore()
-const recapRound = ref(null)
+const latestRound = ref(null) // latest completed round (drives the Recap button)
+const showRecap = ref(false)  // whether the welcome recap modal is open
+const recapView = ref('card') // 'card' for the auto welcome, 'grid' for the Recap button
 const showScoring = ref(false)
 
 // ── Copy invite link ───────────────────────────────────
@@ -319,10 +323,13 @@ onMounted(async () => {
   await lb.load()
   lb.subscribeRealtime()
 
-  const latest = await lb.loadLatestCompletedRound()
-  if (latest && readSeenRecap() !== latest) {
-    recapRound.value = latest
-    markRecapSeen(latest)
+  latestRound.value = await lb.loadLatestCompletedRound()
+  // Auto-open once per round on the personal scorecard; the Recap button reopens
+  // straight to the everyone's-picks grid any time after.
+  if (latestRound.value && readSeenRecap() !== latestRound.value) {
+    recapView.value = 'card'
+    showRecap.value = true
+    markRecapSeen(latestRound.value)
   }
 })
 onUnmounted(() => {
