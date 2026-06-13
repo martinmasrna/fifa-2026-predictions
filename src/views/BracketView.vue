@@ -73,7 +73,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
-import { serverNow } from '../lib/serverTime.js'
+import { nowMs } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
 import BracketCard from '../components/BracketCard.vue'
 
@@ -163,7 +163,7 @@ function getMatch(matchNo) {
 
 const openMatches = computed(() =>
   matchesStore.knockoutMatches.filter(m =>
-    m.team1_resolved && m.team2_resolved && serverNow() < new Date(m.kickoff_utc).getTime()
+    m.team1_resolved && m.team2_resolved && nowMs.value < new Date(m.kickoff_utc).getTime()
   )
 )
 </script>

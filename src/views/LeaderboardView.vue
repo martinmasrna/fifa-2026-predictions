@@ -222,7 +222,7 @@ import { useLeaderboardStore } from '../stores/leaderboard.js'
 import { useAuthStore } from '../stores/auth.js'
 import { useMatchesStore } from '../stores/matches.js'
 import { MATCH_1_KICKOFF, CONFIG } from '../config.js'
-import { serverNow } from '../lib/serverTime.js'
+import { nowMs as now } from '../lib/serverTime.js'
 import WelcomeRecap from '../components/WelcomeRecap.vue'
 import UpcomingMatches from '../components/UpcomingMatches.vue'
 import Flag from '../components/Flag.vue'
@@ -268,7 +268,7 @@ const AVATAR_COLORS = ['bg-pitch', 'bg-emerald-600', 'bg-rose-500', 'bg-gold', '
 const avatarColor = (i) => AVATAR_COLORS[i % AVATAR_COLORS.length]
 
 // ── Countdown ──────────────────────────────────────────
-const now = ref(serverNow())
+// `now` is the shared reactive server clock (imported as nowMs).
 const target = new Date(MATCH_1_KICKOFF).getTime()
 const pretournamentLocked = computed(() => now.value >= target)
 const cd = computed(() => {
@@ -317,9 +317,7 @@ const RECAP_SEEN_KEY = 'fifa.seenRoundRecap'
 function readSeenRecap() { try { return localStorage.getItem(RECAP_SEEN_KEY) } catch { return null } }
 function markRecapSeen(round) { try { localStorage.setItem(RECAP_SEEN_KEY, round) } catch { /* ignore */ } }
 
-let timer = null
 onMounted(async () => {
-  timer = setInterval(() => { now.value = serverNow() }, 1000)
   await lb.load()
   lb.subscribeRealtime()
 
@@ -333,7 +331,6 @@ onMounted(async () => {
   }
 })
 onUnmounted(() => {
-  clearInterval(timer)
   lb.unsubscribeRealtime()
 })
 </script>

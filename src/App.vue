@@ -34,7 +34,7 @@ import NavBar from './components/NavBar.vue'
 import Icon from './components/Icon.vue'
 import { useAuthStore } from './stores/auth.js'
 import { useMatchesStore } from './stores/matches.js'
-import { syncServerTime, serverNow } from './lib/serverTime.js'
+import { startClock, nowMs } from './lib/serverTime.js'
 import { MATCH_1_KICKOFF } from './config.js'
 
 const auth = useAuthStore()
@@ -46,7 +46,7 @@ const router = useRouter()
 // straight to the set-new-password screen.
 watch(() => auth.recovering, (v) => { if (v) router.push('/reset-password') })
 
-const pretournamentLocked = computed(() => serverNow() >= new Date(MATCH_1_KICKOFF).getTime())
+const pretournamentLocked = computed(() => nowMs.value >= new Date(MATCH_1_KICKOFF).getTime())
 
 const nudgePicksDone = computed(() => {
   const pt = matchesStore.pretournament
@@ -117,7 +117,7 @@ watch(
 )
 
 onMounted(async () => {
-  syncServerTime() // fire-and-forget; anchors countdown/locks to the server clock
+  startClock() // shared server-anchored clock: ticks, and re-syncs on tab focus
   document.addEventListener('visibilitychange', onVisibilityChange)
   await auth.init() // sets the session → the watcher above loads the data
 })
