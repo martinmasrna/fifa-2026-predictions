@@ -75,28 +75,55 @@ const nudgeCopy = computed(() =>
 const LIVE_REFRESH_MS = 45_000
 let liveTimer = null
 
-function tickRefresh() {
-  if (document.visibilityState === 'visible') matchesStore.refreshLive()
+function startLiveRefresh() {
+  if (liveTimer) return
+  liveTimer = setInterval(() => {
+    if (document.visibilityState === 'visible') matchesStore.refreshLive()
+  }, LIVE_REFRESH_MS)
+}
+function stopLiveRefresh() {
+  if (liveTimer) { clearInterval(liveTimer); liveTimer = null }
 }
 function onVisibilityChange() {
-  if (document.visibilityState === 'visible') matchesStore.refreshLive()
+  if (auth.session && document.visibilityState === 'visible') matchesStore.refreshLive()
 }
+
+// ── Session-driven data loading ─────────────────────────
+// One place owns "what happens when the signed-in user changes". Keyed on the
+// user id (not the session object) so hourly token refreshes — which reassign
+// session with the same user — don't re-trigger a full reload. immediate:true
+// covers the case where auth.init() (called from the router guard) already
+// established the session before this watcher was created.
+let loadGen = 0
+watch(
+  () => auth.session?.user?.id ?? null,
+  async (userId) => {
+    const gen = ++loadGen
+    stopLiveRefresh()
+    if (!userId) {
+      matchesStore.reset()
+      return
+    }
+    await matchesStore.loadAppData()
+    if (gen !== loadGen) {
+      // A newer sign-in/out superseded this load. If we've since signed out,
+      // make sure this just-loaded data doesn't linger.
+      if (!auth.session) matchesStore.reset()
+      return
+    }
+    startLiveRefresh()
+  },
+  { immediate: true },
+)
 
 onMounted(async () => {
   syncServerTime() // fire-and-forget; anchors countdown/locks to the server clock
-  await auth.init()
-  if (auth.session) {
-    await matchesStore.loadReferenceData()
-    await matchesStore.loadMatches()
-    await matchesStore.loadMyPredictions()
-
-    liveTimer = setInterval(tickRefresh, LIVE_REFRESH_MS)
-    document.addEventListener('visibilitychange', onVisibilityChange)
-  }
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  await auth.init() // sets the session → the watcher above loads the data
 })
 
 onUnmounted(() => {
-  if (liveTimer) clearInterval(liveTimer)
+  stopLiveRefresh()
   document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>
