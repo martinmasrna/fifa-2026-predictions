@@ -97,13 +97,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import GoalStepper from './GoalStepper.vue'
 import AdvancerToggle from './AdvancerToggle.vue'
 import Flag from './Flag.vue'
 import { useMatchesStore } from '../stores/matches.js'
-import { serverNow } from '../lib/serverTime.js'
+import { nowMs } from '../lib/serverTime.js'
 
 const props = defineProps({
   match: { type: Object, required: true },
@@ -116,8 +116,7 @@ const saveError = ref('')
 const justSaved = ref(false)
 const lockedByServer = ref(false) // set if a save is rejected because kickoff has passed
 
-const now = ref(new Date(serverNow()))
-const locked = computed(() => lockedByServer.value || now.value >= new Date(props.match.kickoff_utc))
+const locked = computed(() => lockedByServer.value || nowMs.value >= new Date(props.match.kickoff_utc).getTime())
 const isKnockout = computed(() => props.match.stage !== 'group')
 
 // Match phase for the status badge: predictions still open, kicked off but no
@@ -149,7 +148,6 @@ const local1 = ref(props.prediction?.pred1 ?? null)
 const local2 = ref(props.prediction?.pred2 ?? null)
 const localAdvancer = ref(props.prediction?.pred_advancer ?? null)
 
-let clockTimer = null
 let saveTimer = null
 let savedTimer = null
 
@@ -176,8 +174,7 @@ watch([local1, local2, localAdvancer], () => {
   saveTimer = setTimeout(save, 350)
 })
 
-onMounted(() => { clockTimer = setInterval(() => { now.value = new Date(serverNow()) }, 60_000) })
-onUnmounted(() => { clearTimeout(saveTimer); clearTimeout(savedTimer); clearInterval(clockTimer) })
+onUnmounted(() => { clearTimeout(saveTimer); clearTimeout(savedTimer) })
 
 async function save() {
   saveError.value = ''
@@ -223,7 +220,7 @@ function dimSide(side) {
 
 const kickoffLabel = computed(() => {
   const kickoff = new Date(props.match.kickoff_utc)
-  const diffMs = kickoff - now.value
+  const diffMs = kickoff.getTime() - nowMs.value
   const time = kickoff.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' })
   if (diffMs <= 0) return time
   const diffMins = Math.floor(diffMs / 60_000)

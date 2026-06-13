@@ -60,27 +60,25 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useMatchesStore } from '../stores/matches.js'
-import { serverNow } from '../lib/serverTime.js'
+import { nowMs } from '../lib/serverTime.js'
 import Flag from './Flag.vue'
 
 const matchesStore = useMatchesStore()
 const predMap = computed(() => matchesStore.predMap)
 
-const now = ref(serverNow())
-
 // pendingCount is the TRUE number of unpicked matches across the whole window
 // (the same set the home attention hero uses) — not just the visible slice, so
 // capping the list can't hide unpicked matches and falsely claim "All picked".
-const pendingCount = computed(() => matchesStore.upcomingPickable(now.value, { onlyUnpicked: true }).length)
+const pendingCount = computed(() => matchesStore.upcomingPickable(nowMs.value, { onlyUnpicked: true }).length)
 
 // Show the matches you still owe first; once you're caught up, fall back to the
 // soonest upcoming fixtures for context. Capped at 6 for display.
 const upcoming = computed(() => {
-  const pending = matchesStore.upcomingPickable(now.value, { onlyUnpicked: true })
-  return (pending.length ? pending : matchesStore.upcomingPickable(now.value)).slice(0, 6)
+  const pending = matchesStore.upcomingPickable(nowMs.value, { onlyUnpicked: true })
+  return (pending.length ? pending : matchesStore.upcomingPickable(nowMs.value)).slice(0, 6)
 })
 
 function kickoffLabel(m) {
@@ -88,8 +86,4 @@ function kickoffLabel(m) {
     weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague',
   })
 }
-
-let timer = null
-onMounted(() => { timer = setInterval(() => { now.value = serverNow() }, 30_000) })
-onUnmounted(() => clearInterval(timer))
 </script>

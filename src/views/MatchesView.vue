@@ -82,9 +82,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
-import { serverNow } from '../lib/serverTime.js'
+import { nowMs } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
 import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
 import Icon from '../components/Icon.vue'
@@ -137,20 +137,18 @@ const matchdays = computed(() => {
   return labels
 })
 
-const now = ref(new Date(serverNow()))
-
 const visibleMatches = computed(() => {
   let ms = matchesStore.matches
   if (activeGroup.value === 'knockout') ms = ms.filter(m => m.stage !== 'group')
   else if (activeGroup.value) ms = ms.filter(m => m.group === activeGroup.value)
   if (activeMatchday.value) ms = ms.filter(m => m.round_label === activeMatchday.value)
 
-  const n = now.value
+  const n = nowMs.value
   // open = predictions still open (kickoff in the future)
   // live = kicked off but no final result yet
   // results = finished
-  if (activeFilter.value === 'open') ms = ms.filter(m => new Date(m.kickoff_utc) > n)
-  else if (activeFilter.value === 'live') ms = ms.filter(m => new Date(m.kickoff_utc) <= n && m.status !== 'final')
+  if (activeFilter.value === 'open') ms = ms.filter(m => new Date(m.kickoff_utc).getTime() > n)
+  else if (activeFilter.value === 'live') ms = ms.filter(m => new Date(m.kickoff_utc).getTime() <= n && m.status !== 'final')
   else if (activeFilter.value === 'results') ms = ms.filter(m => m.status === 'final')
   return ms
 })
@@ -168,8 +166,4 @@ const groupedByRound = computed(() => {
     return { round, matches, date }
   })
 })
-
-let nowTimer = null
-onMounted(() => { nowTimer = setInterval(() => { now.value = new Date(serverNow()) }, 30_000) })
-onUnmounted(() => { clearInterval(nowTimer) })
 </script>

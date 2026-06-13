@@ -5,7 +5,7 @@
     :alt="team"
     :title="team"
     loading="lazy"
-    :class="[sizeClass, shapeClass, dim ? 'opacity-50 grayscale' : '']"
+    :class="[sizeClass, shapeClass, dim ? 'opacity-50 grayscale' : '', highlight ? 'ring-2 ring-gold ring-offset-1 ring-offset-canvas' : '']"
   />
   <!-- Fallback when no flag is mapped (unresolved knockout slots, e.g. "2B") -->
   <span
@@ -23,7 +23,8 @@ const props = defineProps({
   team: { type: String, default: null },
   size: { type: String, default: 'md' }, // xs | sm | md | lg | xl
   shape: { type: String, default: 'rect' }, // rect | coin
-  dim: { type: Boolean, default: false },
+  dim: { type: Boolean, default: false },        // eliminated → greyscale
+  highlight: { type: Boolean, default: false },  // reached the quarter-finals → gold ring
 })
 
 const SIZES = {

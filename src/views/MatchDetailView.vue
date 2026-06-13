@@ -107,7 +107,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useMatchesStore } from '../stores/matches.js'
 import { useAuthStore } from '../stores/auth.js'
-import { serverNow, syncServerTime } from '../lib/serverTime.js'
+import { nowMs, syncServerTime } from '../lib/serverTime.js'
 import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
 
@@ -118,9 +118,9 @@ const auth = useAuthStore()
 const matchNo = computed(() => Number(route.params.matchNo))
 const match = computed(() => matchesStore.matchMap.get(matchNo.value))
 const myPred = computed(() => matchesStore.predMap.get(matchNo.value))
-// Anchor to the server clock (serverNow) — never the browser's, which can be
-// skewed/spoofed. offsetMs is reactive, so this recomputes once time syncs.
-const isAfterKickoff = computed(() => match.value && serverNow() >= new Date(match.value.kickoff_utc).getTime())
+// Anchor to the shared server clock (nowMs) — reactive, so this flips the moment
+// the clock ticks past kickoff or re-syncs on tab focus.
+const isAfterKickoff = computed(() => match.value && nowMs.value >= new Date(match.value.kickoff_utc).getTime())
 
 const loading = ref(false)
 const loadError = ref(false)

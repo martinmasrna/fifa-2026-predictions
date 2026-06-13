@@ -211,7 +211,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabase.js'
 import { useMatchesStore } from '../stores/matches.js'
-import { serverNow, syncServerTime } from '../lib/serverTime.js'
+import { nowMs } from '../lib/serverTime.js'
 
 const matchesStore = useMatchesStore()
 
@@ -255,7 +255,7 @@ const syncAgo = computed(() => {
   if (!syncStatus.value?.last_sync_at) return 'never'
   // Anchor to the server clock — the browser's may be skewed, which would make
   // a fresh sync look hours stale (or vice-versa).
-  const diff = serverNow() - new Date(syncStatus.value.last_sync_at).getTime()
+  const diff = nowMs.value - new Date(syncStatus.value.last_sync_at).getTime()
   const mins = Math.floor(diff / 60_000)
   if (mins < 1) return 'just now'
   if (mins === 1) return '1 min ago'
@@ -263,7 +263,6 @@ const syncAgo = computed(() => {
 })
 
 onMounted(async () => {
-  syncServerTime() // learn the server-clock offset so syncAgo is accurate
   const [syncRes, membersRes] = await Promise.all([
     supabase.from('sync_status').select('*').single(),
     supabase.from('members').select('*').order('joined_at'),
