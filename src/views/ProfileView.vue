@@ -2,10 +2,15 @@
   <div class="max-w-3xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-4">
-      <div class="w-16 h-16 rounded-2xl bg-pitch grid place-items-center text-white font-display font-extrabold text-2xl shrink-0">{{ initial }}</div>
+      <div class="w-16 h-16 rounded-full bg-pitch grid place-items-center text-white font-display font-extrabold text-2xl shrink-0">{{ initial }}</div>
       <div class="min-w-0">
         <h1 class="font-display font-extrabold text-2xl sm:text-3xl truncate">{{ name }}</h1>
-        <div class="text-ink/50 text-sm">{{ rank ? `${ordinal(rank)} of ${playerCount}` : 'Not ranked yet' }}</div>
+        <div class="text-ink/50 text-sm flex items-center gap-2 flex-wrap">
+          <span>{{ rank ? `${ordinal(rank)} of ${playerCount}` : 'Not ranked yet' }}</span>
+          <span v-if="rankDelta" class="font-semibold" :class="rankDelta > 0 ? 'text-pitch' : 'text-rose-500'">
+            {{ rankDelta > 0 ? `▲ ${rankDelta}` : `▼ ${-rankDelta}` }} since last round
+          </span>
+        </div>
       </div>
     </div>
 
@@ -16,8 +21,8 @@
         <div class="font-display font-extrabold text-3xl text-pitch-dark tnum">{{ grandTotal }}</div>
       </div>
       <div class="card p-4">
-        <div class="text-xs font-bold uppercase tracking-wide text-ink/45 mb-1">Rank</div>
-        <div class="font-display font-extrabold text-3xl tnum">{{ rank ? `#${rank}` : '—' }}</div>
+        <div class="text-xs font-bold uppercase tracking-wide text-ink/45 mb-1">Points to #1</div>
+        <div class="font-display font-extrabold text-3xl tnum" :class="rank === 1 ? 'text-gold-dark' : ''">{{ rank === 1 ? '🏆' : pointsToFirst }}</div>
       </div>
       <div class="card p-4">
         <div class="text-xs font-bold uppercase tracking-wide text-ink/45 mb-1">Exact 🎯</div>
@@ -34,7 +39,7 @@
       <div class="card p-5">
         <h2 class="font-display font-bold text-lg mb-4">Accuracy</h2>
         <dl class="space-y-2.5 text-sm">
-          <div class="flex items-center justify-between"><dt class="text-ink/60">Matches predicted</dt><dd class="font-semibold tnum">{{ predictedCount }}</dd></div>
+          <div class="flex items-center justify-between"><dt class="text-ink/60">Matches played</dt><dd class="font-semibold tnum">{{ scoredCount }}</dd></div>
           <div class="flex items-center justify-between"><dt class="text-ink/60">Avg points / match</dt><dd class="font-semibold tnum">{{ avgPerMatch }}</dd></div>
           <div class="flex items-center justify-between"><dt class="text-ink/60">Exact-score rate</dt><dd class="font-semibold tnum">{{ exactRate }}%</dd></div>
         </dl>
@@ -103,6 +108,7 @@ const name = computed(() => auth.member?.display_name ?? '')
 const initial = computed(() => (name.value[0] ?? '?').toUpperCase())
 
 const ptScore = ref(null)
+const rankDelta = ref(null)
 
 const myRow = computed(() => lb.rankedRows.find(r => r.user_id === myId) ?? null)
 const rank = computed(() => myRow.value?.rank ?? null)
@@ -111,12 +117,16 @@ const grandTotal = computed(() => myRow.value?.grand_total ?? 0)
 const exact = computed(() => myRow.value?.exact_scorelines ?? 0)
 const correctResults = computed(() => myRow.value?.correct_results ?? 0)
 
-// Per-match scoring (matchesStore.scores = this user's prediction_scores rows)
+// Per-match scoring (matchesStore.scores = this user's prediction_scores rows,
+// one per final match — so its length is "matches played", the right denominator
+// for the accuracy rates below).
 const scoredCount = computed(() => matchesStore.scores.length)
-const predictedCount = computed(() => matchesStore.predictions.length)
 const matchPoints = computed(() => matchesStore.scores.reduce((s, r) => s + (r.points ?? 0), 0))
 const avgPerMatch = computed(() => scoredCount.value ? (matchPoints.value / scoredCount.value).toFixed(1) : '0.0')
 const exactRate = computed(() => scoredCount.value ? Math.round((exact.value / scoredCount.value) * 100) : 0)
+
+const leaderTotal = computed(() => lb.rankedRows.length ? Math.max(...lb.rankedRows.map(r => r.grand_total)) : 0)
+const pointsToFirst = computed(() => Math.max(0, leaderTotal.value - grandTotal.value))
 
 const groupAvg = computed(() => {
   const rows = lb.rankedRows
@@ -146,7 +156,11 @@ function ordinal(n) {
 onMounted(async () => {
   if (!lb.rankedRows.length) await lb.load()
   if (!myId) return
-  const { data } = await supabase.from('pretournament_scores').select('*').eq('user_id', myId).single()
-  ptScore.value = data ?? null
+  const [ptRes, rd] = await Promise.all([
+    supabase.from('pretournament_scores').select('*').eq('user_id', myId).single(),
+    lb.loadRankDelta(myId),
+  ])
+  ptScore.value = ptRes.data ?? null
+  rankDelta.value = rd.delta
 })
 </script>
