@@ -61,7 +61,7 @@
           <tr>
             <th class="text-center py-1.5 font-medium w-9">#</th>
             <th class="text-left px-2 py-1.5 font-medium">Team</th>
-            <th class="text-center py-1.5 font-medium w-16">Group</th>
+            <th class="hidden sm:table-cell text-center py-1.5 font-medium w-16">Group</th>
             <th class="text-center py-1.5 font-medium w-9">W</th>
             <th class="text-center py-1.5 font-medium w-9">D</th>
             <th class="text-center py-1.5 font-medium w-9">L</th>
@@ -83,7 +83,7 @@
                 <span class="font-medium truncate" :class="i < 8 ? 'text-pitch-dark' : 'text-ink/80'">{{ row.team }}</span>
               </div>
             </td>
-            <td class="text-center py-2 text-ink/50">{{ row.group }}</td>
+            <td class="hidden sm:table-cell text-center py-2 text-ink/50">{{ row.group }}</td>
             <td class="text-center py-2 text-ink/60">{{ row.won }}</td>
             <td class="text-center py-2 text-ink/60">{{ row.drawn }}</td>
             <td class="text-center py-2 text-ink/60">{{ row.lost }}</td>

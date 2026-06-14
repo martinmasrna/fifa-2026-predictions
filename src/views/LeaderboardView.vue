@@ -171,12 +171,10 @@
         <table class="w-full text-sm">
           <thead class="text-[11px] uppercase tracking-wider text-ink/40 border-b border-ink/10">
             <tr>
-              <th class="text-center py-3 w-12">#</th>
+              <th class="text-center py-3 w-12 pl-2 sm:pl-5">#</th>
               <th class="text-left py-3 px-1">Player</th>
-              <th class="text-center py-3 hidden md:table-cell font-medium">Pre</th>
-              <th class="text-center py-3 hidden sm:table-cell font-medium">Group</th>
-              <th class="text-center py-3 hidden sm:table-cell font-medium">KO</th>
-              <th class="text-center py-3">Total</th>
+              <th class="text-center py-3 px-1 font-medium whitespace-nowrap w-full">Pre-tournament</th>
+              <th class="text-center py-3 pl-4 pr-2 sm:pr-6">Total</th>
             </tr>
           </thead>
           <tbody class="tnum">
@@ -186,20 +184,59 @@
               class="border-t border-ink/5 transition-colors"
               :class="isMe(row) ? 'bg-pitch-soft' : 'hover:bg-pitch-soft/30'"
             >
-              <td class="text-center py-3.5 relative">
+              <td class="text-center py-3.5 pl-2 sm:pl-5 relative">
                 <span v-if="isMe(row)" class="absolute left-0 top-0 bottom-0 w-1 bg-pitch"></span>
                 <span v-if="row.rank === 1" class="text-xl">🥇</span>
                 <span v-else-if="row.rank === 2" class="text-xl">🥈</span>
                 <span v-else-if="row.rank === 3" class="text-xl">🥉</span>
                 <span v-else class="text-ink/40 font-semibold">{{ row.rank }}</span>
               </td>
-              <td class="py-3.5 px-1 font-semibold" :class="isMe(row) ? 'text-pitch-dark' : ''">
+              <td class="py-3.5 px-1 font-semibold whitespace-nowrap" :class="isMe(row) ? 'text-pitch-dark' : ''">
                 {{ row.display_name }}
               </td>
-              <td class="text-center py-3.5 text-ink/50 hidden md:table-cell">{{ row.pretournament_pts }}</td>
-              <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.group_pts }}</td>
-              <td class="text-center py-3.5 text-ink/50 hidden sm:table-cell">{{ row.knockout_pts }}</td>
-              <td class="text-center py-3.5 font-display font-extrabold text-base"
+              <td class="py-3.5 px-1 w-full">
+                <div class="flex items-center justify-center">
+                  <!-- Top 8 coins -->
+                  <div v-if="top8For(row.user_id).length" class="flex -space-x-1.5 shrink-0">
+                    <span
+                      v-for="t in top8For(row.user_id)" :key="t"
+                      class="relative inline-block"
+                    >
+                      <img
+                        :src="flagUrl(t, 40)" :alt="t"
+                        :title="t === winnerFor(row.user_id) ? `${t} — predicted champion` : t"
+                        class="w-5 h-5 sm:w-6 sm:h-6 flag-coin"
+                      />
+                      <!-- Crown stays inside the champion's coin (no z-index) so it
+                           keeps the row's natural overlap — coins to the right paint
+                           over it, coins to the left sit behind. It shares the coin's
+                           circle geometry (viewBox 0 0 24 24, r=12), so its base is an
+                           arc of the flag; points rise via overflow-visible. -->
+                      <svg
+                        v-if="t === winnerFor(row.user_id)"
+                        class="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
+                        viewBox="0 0 24 24" fill="#D99B27" stroke="#8A5E15"
+                        stroke-width="0.9" stroke-linejoin="round"
+                      >
+                        <path d="M2,5.4 L3,-8 L7.5,-1.5 L12,-10 L16.5,-1.5 L21,-8 L22,5.4 A12,12 0 0 0 2,5.4 Z" />
+                      </svg>
+                    </span>
+                  </div>
+                  <!-- Dark horse, set off by a one-coin-wide gap with a faint divider -->
+                  <span
+                    v-if="darkHorseFor(row.user_id)"
+                    class="self-stretch w-px bg-ink/10 mx-[5px] sm:mx-3 shrink-0"
+                  ></span>
+                  <img
+                    v-if="darkHorseFor(row.user_id)"
+                    :src="flagUrl(darkHorseFor(row.user_id), 40)"
+                    :alt="darkHorseFor(row.user_id)"
+                    :title="`${darkHorseFor(row.user_id)} — dark horse`"
+                    class="w-5 h-5 sm:w-6 sm:h-6 flag-coin shrink-0"
+                  />
+                </div>
+              </td>
+              <td class="text-center py-3.5 pl-4 pr-2 sm:pr-6 font-display font-extrabold text-base"
                   :class="row.rank === 1 ? 'text-gold-dark' : isMe(row) ? 'text-pitch-dark' : 'text-ink'">
                 {{ row.grand_total }}
               </td>
@@ -263,6 +300,9 @@ const picksDone = computed(() => {
 })
 
 const isMe = (row) => row.user_id === auth.session?.user.id
+const top8For = (userId) => [...(lb.top8ByUser[userId] ?? [])].sort((a, b) => a.localeCompare(b))
+const winnerFor = (userId) => lb.winnerByUser[userId] ?? null
+const darkHorseFor = (userId) => lb.darkHorseByUser[userId] ?? null
 
 const AVATAR_COLORS = ['bg-pitch', 'bg-emerald-600', 'bg-rose-500', 'bg-gold', 'bg-amber-600', 'bg-sky-600', 'bg-indigo-500', 'bg-teal-600']
 const avatarColor = (i) => AVATAR_COLORS[i % AVATAR_COLORS.length]
