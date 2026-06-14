@@ -6,6 +6,9 @@ import { rankRows } from '../lib/ranking.js'
 export const useLeaderboardStore = defineStore('leaderboard', () => {
   const rows = ref([])
   const rankedRows = ref([])
+  const top8ByUser = ref({}) // user_id -> string[] of predicted Top 8 teams
+  const winnerByUser = ref({}) // user_id -> predicted champion team
+  const darkHorseByUser = ref({}) // user_id -> predicted dark horse team
   const loading = ref(false)
   let realtimeChannel = null
 
@@ -17,9 +20,29 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
         .select('*')
       if (error) throw error
       setRows(data ?? [])
+      // Everyone's Top 8 picks become readable once match 1 kicks off (RLS).
+      // Fetch once — picks are frozen at lock, so no need to refetch on rescore.
+      if (Object.keys(top8ByUser.value).length === 0) await loadTop8()
     } finally {
       loading.value = false
     }
+  }
+
+  async function loadTop8() {
+    const { data } = await supabase
+      .from('pretournament_predictions')
+      .select('user_id, top8, winner, dark_horse')
+    const top8 = {}
+    const winners = {}
+    const darkHorses = {}
+    for (const p of data ?? []) {
+      top8[p.user_id] = p.top8 ?? []
+      winners[p.user_id] = p.winner ?? null
+      darkHorses[p.user_id] = p.dark_horse ?? null
+    }
+    top8ByUser.value = top8
+    winnerByUser.value = winners
+    darkHorseByUser.value = darkHorses
   }
 
   function setRows(data) {
@@ -91,7 +114,7 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
   }
 
   return {
-    rows, rankedRows, loading,
+    rows, rankedRows, top8ByUser, winnerByUser, darkHorseByUser, loading,
     load, subscribeRealtime, unsubscribeRealtime, loadRoundRecap, loadLatestCompletedRound, loadRankDelta,
   }
 })
