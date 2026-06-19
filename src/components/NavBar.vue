@@ -1,5 +1,5 @@
 <template>
-  <nav class="sticky top-0 z-30 bg-canvas/85 backdrop-blur border-b border-ink/10">
+  <nav class="sticky top-0 z-30 bg-canvas border-b border-ink/10">
     <div class="max-w-6xl mx-auto px-4 sm:px-5">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2.5 shrink-0">
