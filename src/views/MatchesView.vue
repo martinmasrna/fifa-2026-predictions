@@ -1,53 +1,56 @@
 <template>
   <div>
-    <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
-      <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Matches</h1></div>
-      <div class="flex gap-1.5">
-        <button
-          v-for="f in filters"
-          :key="f.id"
-          @click="activeFilter = f.id"
-          class="btn btn-sm"
-          :class="activeFilter === f.id ? 'btn-primary' : 'btn-secondary'"
-        >{{ f.label }}</button>
-      </div>
-    </div>
-
-    <!-- Group + Matchday filters -->
-    <div class="mb-6 grid items-center gap-x-3 gap-y-2.5" style="grid-template-columns: max-content 1fr">
-      <span class="text-xs font-semibold text-ink/40">Group</span>
-      <div class="flex overflow-x-auto pb-0.5">
-        <button
-          @click="activeGroup = null"
-          class="seg-chip first:rounded-l-lg"
-          :class="activeGroup === null ? 'seg-chip-on' : 'seg-chip-off'"
-        >All</button>
-        <button
-          v-for="g in groups" :key="g"
-          @click="activeGroup = g"
-          class="seg-chip"
-          :class="activeGroup === g ? 'seg-chip-on' : 'seg-chip-off'"
-        >{{ g }}</button>
-        <button
-          @click="activeGroup = 'knockout'"
-          class="seg-chip last:rounded-r-lg"
-          :class="activeGroup === 'knockout' ? 'seg-chip-on' : 'seg-chip-off'"
-        >KO</button>
+    <!-- Sticky filter bar: negative margin absorbs main's py-6/7 so it looks identical at rest -->
+    <div ref="filterBar" class="sticky top-16 z-20 bg-canvas -mt-6 sm:-mt-7 pt-6 sm:pt-7 pb-5 -mx-4 sm:-mx-5 px-4 sm:px-5">
+      <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
+        <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Matches</h1></div>
+        <div class="flex gap-1.5">
+          <button
+            v-for="f in filters"
+            :key="f.id"
+            @click="activeFilter = f.id"
+            class="btn btn-sm"
+            :class="activeFilter === f.id ? 'btn-primary' : 'btn-secondary'"
+          >{{ f.label }}</button>
+        </div>
       </div>
 
-      <span class="text-xs font-semibold text-ink/40">Matchday</span>
-      <div class="flex overflow-x-auto pb-0.5">
-        <button
-          @click="activeMatchday = null"
-          class="seg-chip first:rounded-l-lg"
-          :class="activeMatchday === null ? 'seg-chip-on' : 'seg-chip-off'"
-        >All</button>
-        <button
-          v-for="md in matchdays" :key="md"
-          @click="activeMatchday = md"
-          class="seg-chip"
-          :class="activeMatchday === md ? 'seg-chip-on' : 'seg-chip-off'"
-        >{{ abbreviate(md) }}</button>
+      <!-- Group + Matchday filters -->
+      <div class="grid items-center gap-x-3 gap-y-2.5" style="grid-template-columns: max-content 1fr">
+        <span class="text-xs font-semibold text-ink/40">Group</span>
+        <div class="flex overflow-x-auto pb-0.5">
+          <button
+            @click="activeGroup = null"
+            class="seg-chip first:rounded-l-lg"
+            :class="activeGroup === null ? 'seg-chip-on' : 'seg-chip-off'"
+          >All</button>
+          <button
+            v-for="g in groups" :key="g"
+            @click="activeGroup = g"
+            class="seg-chip"
+            :class="activeGroup === g ? 'seg-chip-on' : 'seg-chip-off'"
+          >{{ g }}</button>
+          <button
+            @click="activeGroup = 'knockout'"
+            class="seg-chip last:rounded-r-lg"
+            :class="activeGroup === 'knockout' ? 'seg-chip-on' : 'seg-chip-off'"
+          >KO</button>
+        </div>
+
+        <span class="text-xs font-semibold text-ink/40">Matchday</span>
+        <div class="flex overflow-x-auto pb-0.5">
+          <button
+            @click="activeMatchday = null"
+            class="seg-chip first:rounded-l-lg"
+            :class="activeMatchday === null ? 'seg-chip-on' : 'seg-chip-off'"
+          >All</button>
+          <button
+            v-for="md in matchdays" :key="md"
+            @click="activeMatchday = md"
+            class="seg-chip"
+            :class="activeMatchday === md ? 'seg-chip-on' : 'seg-chip-off'"
+          >{{ abbreviate(md) }}</button>
+        </div>
       </div>
     </div>
 
@@ -71,6 +74,7 @@
           <MatchCard
             v-for="match in group.matches"
             :key="match.match_no"
+            :ref="el => setCardRef(el, match.match_no)"
             :match="match"
             :prediction="matchesStore.predMap.get(match.match_no)"
             :score="matchesStore.scoreMap.get(match.match_no) ?? null"
@@ -82,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
 import { nowMs } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
@@ -152,6 +156,42 @@ const visibleMatches = computed(() => {
   else if (activeFilter.value === 'results') ms = ms.filter(m => m.status === 'final')
   return ms
 })
+
+const targetMatchNo = computed(() => {
+  const n = nowMs.value
+  const ms = matchesStore.matches
+  const live = ms.find(m => new Date(m.kickoff_utc).getTime() <= n && m.status !== 'final')
+  if (live) return live.match_no
+  const upcoming = ms.find(m => new Date(m.kickoff_utc).getTime() > n)
+  return upcoming?.match_no ?? null
+})
+
+const filterBar = ref(null)
+const cardRefs = ref({})
+function setCardRef(el, matchNo) {
+  if (el) cardRefs.value[matchNo] = el
+}
+
+const hasScrolled = ref(false)
+
+async function scrollToTarget() {
+  if (hasScrolled.value) return
+  hasScrolled.value = true
+  await nextTick()
+  const no = targetMatchNo.value
+  const el = no != null ? cardRefs.value[no] : null
+  if (!el) return
+  const node = el.$el ?? el
+  // scroll to the round-group section (includes the h2 header above the card)
+  const section = node.parentElement?.parentElement ?? node
+  const navHeight = document.querySelector('nav')?.offsetHeight ?? 0
+  const barHeight = filterBar.value?.offsetHeight ?? 0
+  const top = section.getBoundingClientRect().top + window.scrollY - navHeight - barHeight - 10
+  window.scrollTo({ top, behavior: 'smooth' })
+}
+
+onMounted(() => { if (loaded.value) scrollToTarget() })
+watch(loaded, (val) => { if (val) scrollToTarget() })
 
 const groupedByRound = computed(() => {
   const map = new Map()

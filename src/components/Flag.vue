@@ -41,7 +41,7 @@ const markClass = computed(() => cfg.value.mark)
 const shapeClass = computed(() =>
   props.shape === 'coin'
     ? 'flag-coin shrink-0'
-    : 'rounded object-cover ring-1 ring-ink/10 shrink-0'
+    : 'rounded object-cover ring-1 ring-ink/10 shrink-0 aspect-[4/3]'
 )
 const src = computed(() => (props.team ? flagUrl(props.team, cfg.value.px) : null))
 </script>
