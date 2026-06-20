@@ -29,7 +29,7 @@
                 <div class="text-sm text-ink/55 mt-1">
                   points
                   <template v-if="rankDelta !== null && rankDelta !== 0">
-                    · <span class="text-pitch font-semibold">{{ rankDelta > 0 ? `▲ up ${rankDelta}` : `▼ down ${-rankDelta}` }}</span>
+                    · <span :class="rankDelta > 0 ? 'text-pitch' : 'text-red-500'" class="font-semibold">{{ rankDelta > 0 ? `▲ up ${rankDelta}` : `▼ down ${-rankDelta}` }}</span>
                   </template>
                   <template v-if="myRank"> to {{ ordinal(myRank) }}</template>
                 </div>
