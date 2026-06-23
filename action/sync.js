@@ -58,6 +58,22 @@ async function fetchOpenfootball() {
   return null
 }
 
+// Apply partial column changes to existing match rows. These rows are always
+// created up front by the Step 1 schedule upsert, so we UPDATE rather than
+// upsert: an upsert with partial objects would emit INSERT ... ON CONFLICT, and
+// Postgres enforces NOT NULL on the candidate insert row (stage, round_label,
+// team1/2, kickoff_utc, ground) before the conflict branch — blowing up with a
+// not-null violation even though we only mean to update a few columns.
+async function updateMatches(rows) {
+  const results = await Promise.all(
+    rows.map(({ match_no, ...fields }) =>
+      supabase.from('matches').update(fields).eq('match_no', match_no)
+    )
+  )
+  const failed = results.find(r => r.error)
+  if (failed) throw failed.error
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main sync loop
 // ──────────────────────────────────────────────────────────────
@@ -115,10 +131,7 @@ async function main() {
     // ("2A" → "Mexico"). Manual Admin resolution is never overwritten.
     const slotUpdates = resolveKnockoutSlots(ofMatches, dbMatchMap, knownTeams)
     if (slotUpdates.length > 0) {
-      const { error: slotErr } = await supabase.from('matches').upsert(slotUpdates, {
-        onConflict: 'match_no',
-      })
-      if (slotErr) throw slotErr
+      await updateMatches(slotUpdates)
       console.log(`Resolved ${slotUpdates.length} knockout slot(s)`)
       // Reflect resolutions locally so the result step sees the real teams.
       for (const u of slotUpdates) Object.assign(dbMatchMap.get(u.match_no), u)
@@ -137,10 +150,7 @@ async function main() {
     }
 
     if (resultUpdates.length > 0) {
-      const { error: resErr } = await supabase.from('matches').upsert(resultUpdates, {
-        onConflict: 'match_no',
-      })
-      if (resErr) throw resErr
+      await updateMatches(resultUpdates)
       console.log(`Updated ${resultUpdates.length} match results`)
     }
 
