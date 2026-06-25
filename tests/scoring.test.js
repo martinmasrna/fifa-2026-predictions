@@ -5,6 +5,7 @@ import {
   deriveAdvancer,
   scoreKnockoutMatch,
   scorePretournament,
+  darkHorsePoints,
   buildPretournamentResults,
 } from '../src/lib/scoring.js'
 
@@ -291,4 +292,20 @@ describe('scorePretournament', () => {
   it('null pred → all zeros', () => {
     expect(scorePretournament(null, {})).toEqual({ top8_pts: 0, winner_pts: 0, dark_horse_pts: 0 })
   })
+})
+
+describe('darkHorsePoints', () => {
+  const reality = {
+    tournamentWinner: 'Norway', runnerUp: 'Brazil',
+    semiFinalists: ['Norway', 'Brazil', 'France', 'Italy'],
+    quarterFinalists: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
+    roundOf16Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan', 'Egypt'],
+  }
+  it('champion → 50', () => expect(darkHorsePoints('Norway', reality)).toBe(50))
+  it('runner-up → 30', () => expect(darkHorsePoints('Brazil', reality)).toBe(30))
+  it('semi-finalist (no further) → 20', () => expect(darkHorsePoints('Italy', reality)).toBe(20))
+  it('quarter-finalist (no further) → 10', () => expect(darkHorsePoints('Croatia', reality)).toBe(10))
+  it('round of 16 (no further) → 5', () => expect(darkHorsePoints('Egypt', reality)).toBe(5))
+  it('not reached / eliminated early → 0', () => expect(darkHorsePoints('Mexico', reality)).toBe(0))
+  it('no team → 0', () => expect(darkHorsePoints(null, reality)).toBe(0))
 })

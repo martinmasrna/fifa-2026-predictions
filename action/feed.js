@@ -113,6 +113,49 @@ export function resolveKnockoutSlots(ofMatches, dbByNo, knownTeams) {
   return updates
 }
 
+// Self-propagate the bracket: fill "W##"/"L##" winner/loser slots in later
+// rounds from our OWN finalized advancers, independent of the openfootball feed.
+// This makes the bracket fill the instant a knockout match finalizes, instead of
+// waiting for openfootball to publish the resolved team name (which can lag).
+//
+// Only winner/loser references are handled here — Round-of-32 group-placement
+// codes ("2A", "3A/B/C/D/F") can't be derived from advancers and still come from
+// the feed/Admin. Already-resolved slots (feed or Admin) are never overwritten.
+//
+// `schedule` supplies the static slot references; `dbByNo` is the current match
+// state (advancer + resolution flags). Returns an array of partial match rows.
+export function propagateBracket(schedule, dbByNo) {
+  const updates = []
+  for (const m of schedule) {
+    const db = dbByNo.get(m.match_no)
+    if (!db) continue
+
+    const upd = { match_no: m.match_no }
+    let changed = false
+    for (const slot of ['team1', 'team2']) {
+      const resolvedKey = slot === 'team1' ? 'team1_resolved' : 'team2_resolved'
+      if (db[resolvedKey]) continue // feed or Admin already resolved it — leave alone
+      const team = resolveSlotRef(m[slot], dbByNo)
+      if (team) { upd[slot] = team; upd[resolvedKey] = true; changed = true }
+    }
+    if (changed) updates.push(upd)
+  }
+  return updates
+}
+
+// Resolve a "W##" / "L##" reference to a real team name using finalized match
+// data, or null if the source match isn't decided yet.
+function resolveSlotRef(ref, dbByNo) {
+  const m = /^([WL])(\d+)$/.exec(ref ?? '')
+  if (!m) return null // group-placement code or already a real name
+  const src = dbByNo.get(Number(m[2]))
+  if (src?.status !== 'final' || !src.advancer) return null
+  if (m[1] === 'W') return src.advancer
+  // Loser: the source match's non-advancer. Its teams are guaranteed real
+  // because buildResultUpdate only finalizes once both are resolved.
+  return src.advancer === src.team1 ? src.team2 : src.team1
+}
+
 // Decide the result row for a feed match, or null if it shouldn't be written
 // (no scores yet, manually overridden, knockout teams not resolved, or a
 // knockout still without a decided advancer). Pure — the caller adds updated_at.

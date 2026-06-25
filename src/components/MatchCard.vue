@@ -11,9 +11,10 @@
       <div class="flex items-center gap-2">
         <span v-if="phase === 'final'" class="badge-final">{{ statusLabel }}</span>
         <span v-else-if="phase === 'live'" class="badge-live"><span class="live-dot"></span>Live</span>
+        <span v-else-if="phase === 'pending'" class="badge-open opacity-50">TBD</span>
         <span v-else class="badge-open">Open</span>
         <RouterLink
-          v-if="phase !== 'upcoming'"
+          v-if="phase === 'final' || phase === 'live'"
           :to="`/matches/${match.match_no}`"
           class="text-xs text-pitch font-semibold hover:underline"
         >Details</RouterLink>
@@ -24,8 +25,8 @@
     <div class="flex items-center gap-3">
       <!-- Team 1 -->
       <div class="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-        <Flag :team="match.team1" size="lg" :dim="dimSide(1)" />
-        <span class="font-semibold text-sm text-center leading-tight" :class="nameClass(1)">{{ match.team1 || 'TBD' }}</span>
+        <Flag :team="side1Resolved ? match.team1 : null" size="lg" :dim="dimSide(1)" />
+        <span class="font-semibold text-sm text-center leading-tight" :class="nameClass(1)">{{ team1Name }}</span>
       </div>
 
       <!-- Center -->
@@ -38,6 +39,11 @@
             <span class="text-2xl font-extrabold" :class="nameClass(2)">{{ match.ft2 }}</span>
           </div>
           <div v-if="extraLabel" class="text-[10px] text-ink/40 text-center mt-0.5">{{ extraLabel }}</div>
+        </template>
+
+        <!-- Knockout teams not yet decided -->
+        <template v-else-if="!teamsResolved">
+          <span class="text-ink/30 text-sm whitespace-nowrap">teams TBD</span>
         </template>
 
         <!-- Editable prediction -->
@@ -64,13 +70,13 @@
 
       <!-- Team 2 -->
       <div class="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-        <Flag :team="match.team2" size="lg" :dim="dimSide(2)" />
-        <span class="font-semibold text-sm text-center leading-tight" :class="nameClass(2)">{{ match.team2 || 'TBD' }}</span>
+        <Flag :team="side2Resolved ? match.team2 : null" size="lg" :dim="dimSide(2)" />
+        <span class="font-semibold text-sm text-center leading-tight" :class="nameClass(2)">{{ team2Name }}</span>
       </div>
     </div>
 
     <!-- Advancer toggle (knockout draw only) -->
-    <div v-if="isKnockout && !locked && local1 != null && local2 != null && local1 === local2" class="mt-3.5">
+    <div v-if="isKnockout && teamsResolved && !locked && local1 != null && local2 != null && local1 === local2" class="mt-3.5">
       <AdvancerToggle
         v-model="localAdvancer"
         :pred1="local1"
@@ -119,12 +125,23 @@ const lockedByServer = ref(false) // set if a save is rejected because kickoff h
 const locked = computed(() => lockedByServer.value || nowMs.value >= new Date(props.match.kickoff_utc).getTime())
 const isKnockout = computed(() => props.match.stage !== 'group')
 
+// A knockout slot is "resolved" once its real team is known (feed/propagation/
+// Admin). Group matches always have real teams. Until both sides resolve, the
+// match isn't pickable — there's nothing meaningful to predict yet.
+const side1Resolved = computed(() => !isKnockout.value || !!props.match.team1_resolved)
+const side2Resolved = computed(() => !isKnockout.value || !!props.match.team2_resolved)
+const teamsResolved = computed(() => side1Resolved.value && side2Resolved.value)
+const team1Name = computed(() => side1Resolved.value ? (props.match.team1 || 'TBD') : 'TBD')
+const team2Name = computed(() => side2Resolved.value ? (props.match.team2 || 'TBD') : 'TBD')
+
 // Match phase for the status badge: predictions still open, kicked off but no
 // final result yet (live), or finished. We have no minute-by-minute feed, so
 // "live" simply means kickoff has passed and the result isn't in yet.
+// "pending" = a knockout match whose teams aren't decided yet (not pickable).
 const phase = computed(() => {
   if (props.match.status === 'final') return 'final'
   if (locked.value) return 'live'
+  if (!teamsResolved.value) return 'pending'
   return 'upcoming'
 })
 

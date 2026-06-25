@@ -4,6 +4,7 @@ import {
   buildMatchLookup,
   matchNoFor,
   resolveKnockoutSlots,
+  propagateBracket,
   buildResultUpdate,
 } from '../action/feed.js'
 
@@ -70,6 +71,63 @@ describe('resolveKnockoutSlots', () => {
 
   it('skips group matches (no num)', () => {
     expect(resolveKnockoutSlots([{ num: null, team1: 'Mexico', team2: 'Brazil' }], new Map(), knownTeams)).toEqual([])
+  })
+})
+
+describe('propagateBracket', () => {
+  // R16 match 89 references the winners of R32 matches 74 and 77.
+  const r16Schedule = [{ match_no: 89, stage: 'Round of 16', team1: 'W74', team2: 'W77' }]
+
+  it('fills a winner slot once the source match is final', () => {
+    const dbByNo = new Map([
+      [74, { match_no: 74, status: 'final', advancer: 'Mexico', team1: 'Mexico', team2: 'Brazil', team1_resolved: true, team2_resolved: true }],
+      [77, { match_no: 77, status: 'final', advancer: 'Spain', team1: 'Spain', team2: 'Croatia', team1_resolved: true, team2_resolved: true }],
+      [89, { match_no: 89, status: 'scheduled', team1: 'W74', team2: 'W77', team1_resolved: false, team2_resolved: false }],
+    ])
+    expect(propagateBracket(r16Schedule, dbByNo)).toEqual([
+      { match_no: 89, team1: 'Mexico', team1_resolved: true, team2: 'Spain', team2_resolved: true },
+    ])
+  })
+
+  it('leaves a slot unresolved while the source match is not yet final', () => {
+    const dbByNo = new Map([
+      [74, { match_no: 74, status: 'final', advancer: 'Mexico', team1: 'Mexico', team2: 'Brazil', team1_resolved: true, team2_resolved: true }],
+      [77, { match_no: 77, status: 'scheduled', advancer: null, team1: 'W?', team2: 'W?', team1_resolved: false, team2_resolved: false }],
+      [89, { match_no: 89, status: 'scheduled', team1: 'W74', team2: 'W77', team1_resolved: false, team2_resolved: false }],
+    ])
+    // Only team1 (from the decided match 74) resolves.
+    expect(propagateBracket(r16Schedule, dbByNo)).toEqual([
+      { match_no: 89, team1: 'Mexico', team1_resolved: true },
+    ])
+  })
+
+  it('never overwrites an already-resolved (feed or Admin) slot', () => {
+    const dbByNo = new Map([
+      [74, { match_no: 74, status: 'final', advancer: 'Mexico', team1: 'Mexico', team2: 'Brazil', team1_resolved: true, team2_resolved: true }],
+      [77, { match_no: 77, status: 'final', advancer: 'Spain', team1: 'Spain', team2: 'Croatia', team1_resolved: true, team2_resolved: true }],
+      [89, { match_no: 89, status: 'scheduled', team1: 'Portugal', team2: 'W77', team1_resolved: true, team2_resolved: false }],
+    ])
+    expect(propagateBracket(r16Schedule, dbByNo)).toEqual([
+      { match_no: 89, team2: 'Spain', team2_resolved: true },
+    ])
+  })
+
+  it('derives the loser for the third-place match (L101/L102)', () => {
+    const tpSchedule = [{ match_no: 103, stage: 'Third place', team1: 'L101', team2: 'L102' }]
+    const dbByNo = new Map([
+      [101, { match_no: 101, status: 'final', advancer: 'Mexico', team1: 'Mexico', team2: 'Brazil', team1_resolved: true, team2_resolved: true }],
+      [102, { match_no: 102, status: 'final', advancer: 'Spain', team1: 'Croatia', team2: 'Spain', team1_resolved: true, team2_resolved: true }],
+      [103, { match_no: 103, status: 'scheduled', team1: 'L101', team2: 'L102', team1_resolved: false, team2_resolved: false }],
+    ])
+    expect(propagateBracket(tpSchedule, dbByNo)).toEqual([
+      { match_no: 103, team1: 'Brazil', team1_resolved: true, team2: 'Croatia', team2_resolved: true },
+    ])
+  })
+
+  it('ignores R32 group-placement codes (not derivable from advancers)', () => {
+    const r32Schedule = [{ match_no: 74, stage: 'Round of 32', team1: '1E', team2: '3A/B/C/D/F' }]
+    const dbByNo = new Map([[74, { match_no: 74, status: 'scheduled', team1: '1E', team2: '3A/B/C/D/F', team1_resolved: false, team2_resolved: false }]])
+    expect(propagateBracket(r32Schedule, dbByNo)).toEqual([])
   })
 })
 

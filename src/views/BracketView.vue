@@ -1,19 +1,5 @@
 <template>
   <div>
-    <!-- Open for prediction -->
-    <div v-if="openMatches.length" class="mb-8">
-      <h2 class="text-xs font-bold text-ink/45 uppercase tracking-wider mb-3">Open for prediction</h2>
-      <div class="grid md:grid-cols-2 gap-3">
-        <MatchCard
-          v-for="m in openMatches"
-          :key="m.match_no"
-          :match="m"
-          :prediction="matchesStore.predMap.get(m.match_no)"
-          :score="matchesStore.scoreMap.get(m.match_no) ?? null"
-        />
-      </div>
-    </div>
-
     <!-- Bracket -->
     <div class="overflow-x-auto pb-4">
       <div class="relative select-none mx-auto" :style="`width:${TOTAL_W}px; height:${TOTAL_H}px`">
@@ -73,8 +59,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useMatchesStore } from '../stores/matches.js'
-import { nowMs } from '../lib/serverTime.js'
-import MatchCard from '../components/MatchCard.vue'
 import BracketCard from '../components/BracketCard.vue'
 
 const matchesStore = useMatchesStore()
@@ -160,10 +144,4 @@ function getMatch(matchNo) {
     status: 'scheduled',
   }
 }
-
-const openMatches = computed(() =>
-  matchesStore.knockoutMatches.filter(m =>
-    m.team1_resolved && m.team2_resolved && nowMs.value < new Date(m.kickoff_utc).getTime()
-  )
-)
 </script>
