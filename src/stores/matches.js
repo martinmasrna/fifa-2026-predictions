@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '../lib/supabase.js'
 import { useAuthStore } from './auth.js'
+import { buildPretournamentResults, darkHorsePoints as darkHorsePointsFor } from '../lib/scoring.js'
 
 export const useMatchesStore = defineStore('matches', () => {
   const matches = ref([])      // all 104 matches from Supabase
@@ -73,6 +74,16 @@ export const useMatchesStore = defineStore('matches', () => {
     }
     return out
   })
+
+  // Which teams have reached which stage so far — the same derivation the scorer
+  // uses, so the leaderboard's pre-tournament badges agree with banked points.
+  const pretournamentResults = computed(() => buildPretournamentResults(matches.value))
+
+  // Points a dark-horse pick has banked, by furthest stage reached. Depends only
+  // on the team, so one call serves every player who picked it.
+  function darkHorsePoints(team) {
+    return darkHorsePointsFor(team, pretournamentResults.value)
+  }
 
   // The single definition of "locking soon": matches still open for prediction
   // that kick off within the window, sorted by kickoff. Shared by the home
@@ -260,7 +271,7 @@ export const useMatchesStore = defineStore('matches', () => {
   return {
     matches, schedule, predictions, scores, pretournament, teams, darkHorseTeams,
     loading, matchMap, predMap, scoreMap, groupMatches, knockoutMatches, upcomingPickable,
-    quarterFinalTeams, eliminatedTeams,
+    quarterFinalTeams, eliminatedTeams, pretournamentResults, darkHorsePoints,
     loadReferenceData, loadMatches, loadMyPredictions, loadAppData, reset, refreshLive,
     savePrediction, savePretournament, loadMatchPredictions, loadMatchScores,
   }

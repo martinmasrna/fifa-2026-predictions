@@ -153,7 +153,6 @@ export function scorePretournament(prediction, reality) {
 
   let top8_pts = 0
   let winner_pts = 0
-  let dark_horse_pts = 0
 
   if (prediction.top8?.length && reality.quarterFinalists?.length) {
     const predicted = new Set(prediction.top8)
@@ -166,16 +165,29 @@ export function scorePretournament(prediction, reality) {
     if (prediction.winner === reality.tournamentWinner) winner_pts = POINTS.pretournament.champion
   }
 
-  const dh = prediction.dark_horse
-  if (dh) {
-    if (reality.tournamentWinner === dh) dark_horse_pts = POINTS.darkHorse.champion
-    else if (reality.runnerUp === dh) dark_horse_pts = POINTS.darkHorse.runnerUp
-    else if (reality.semiFinalists?.includes(dh)) dark_horse_pts = POINTS.darkHorse.semiFinal
-    else if (reality.quarterFinalists?.includes(dh)) dark_horse_pts = POINTS.darkHorse.quarterFinal
-    else if (reality.roundOf16Teams?.includes(dh)) dark_horse_pts = POINTS.darkHorse.roundOf16
-  }
+  const dark_horse_pts = darkHorsePoints(prediction.dark_horse, reality)
 
   return { top8_pts, winner_pts, dark_horse_pts }
+}
+
+/**
+ * Points a dark-horse pick has banked, based on the furthest stage its team has
+ * reached. Pure and shared by the scorer and the leaderboard UI so the ladder
+ * never drifts. A team only appears in `reality` once it's a resolved
+ * participant of a match in that stage, so this grows as the bracket plays out.
+ *
+ * @param {string | null | undefined} team
+ * @param {{ quarterFinalists: string[], semiFinalists: string[], tournamentWinner: string | null, runnerUp: string | null, roundOf16Teams: string[] }} reality
+ * @returns {number}
+ */
+export function darkHorsePoints(team, reality) {
+  if (!team) return 0
+  if (reality.tournamentWinner === team) return POINTS.darkHorse.champion
+  if (reality.runnerUp === team) return POINTS.darkHorse.runnerUp
+  if (reality.semiFinalists?.includes(team)) return POINTS.darkHorse.semiFinal
+  if (reality.quarterFinalists?.includes(team)) return POINTS.darkHorse.quarterFinal
+  if (reality.roundOf16Teams?.includes(team)) return POINTS.darkHorse.roundOf16
+  return 0
 }
 
 /**

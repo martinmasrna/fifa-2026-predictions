@@ -62,27 +62,44 @@
           </div>
           <div v-else class="grid sm:grid-cols-3 gap-3">
             <div class="rounded-xl bg-pitch-soft/50 p-3.5">
-              <div class="text-xs font-bold uppercase tracking-wide text-ink/45 mb-2">Top 8</div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-bold uppercase tracking-wide text-ink/45">Top 8</div>
+                <span v-if="pt?.top8?.length" class="text-xs font-bold tnum" :class="myTop8Pts > 0 ? 'text-pitch-dark' : 'text-ink/40'">+{{ myTop8Pts }}</span>
+              </div>
               <div v-if="pt?.top8?.length" class="flex -space-x-2">
                 <img
                   v-for="t in pt.top8" :key="t"
-                  :src="flagUrl(t, 80)" :alt="t" :title="t"
+                  :src="flagUrl(t, 80)" :alt="t" :title="coinTitle(t, { champion: t === pt.winner })"
                   class="w-8 h-8 flag-coin"
+                  :class="coinClass(t)"
                 />
               </div>
               <span v-else class="text-ink/30 text-sm">—</span>
             </div>
             <div class="rounded-xl bg-gold-soft/60 p-3.5">
-              <div class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1.5">Champion</div>
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="text-xs font-bold uppercase tracking-wide text-gold-dark">Champion</div>
+                <span v-if="myChampionState" class="text-xs font-bold tnum" :class="myChampionState === 'hit' ? 'text-gold-dark' : 'text-ink/40'">
+                  {{ myChampionState === 'hit' ? `+${POINTS.pretournament.champion}` : myChampionState === 'pending' ? 'pending' : '+0' }}
+                </span>
+              </div>
               <div class="flex items-center gap-2.5">
-                <img v-if="pt?.winner" :src="flagUrl(pt.winner, 80)" :alt="pt.winner" class="w-9 h-9 flag-coin" />
+                <img v-if="pt?.winner" :src="flagUrl(pt.winner, 80)" :alt="pt.winner" :title="coinTitle(pt.winner, { champion: true })" class="w-9 h-9 flag-coin" :class="coinClass(pt.winner)" />
                 <span class="font-display font-bold text-sm truncate">{{ pt?.winner ?? '—' }}</span>
               </div>
             </div>
             <div class="rounded-xl bg-purple-50 p-3.5">
-              <div class="text-xs font-bold uppercase tracking-wide text-purple-700 mb-1.5">Dark horse</div>
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="text-xs font-bold uppercase tracking-wide text-purple-700">Dark horse</div>
+                <span
+                  v-if="myDarkHorse?.show"
+                  class="text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full tnum"
+                  :class="myDarkHorse.climbing ? 'bg-gold-soft text-gold-dark' : 'bg-ink/5 text-ink/40'"
+                  :title="myDarkHorse.title"
+                >{{ myDarkHorse.text }}</span>
+              </div>
               <div class="flex items-center gap-2.5">
-                <img v-if="pt?.dark_horse" :src="flagUrl(pt.dark_horse, 80)" :alt="pt.dark_horse" class="w-9 h-9 flag-coin" />
+                <img v-if="pt?.dark_horse" :src="flagUrl(pt.dark_horse, 80)" :alt="pt.dark_horse" :title="myDarkHorse?.title" class="w-9 h-9 flag-coin" :class="myDarkHorse?.coinClass" />
                 <span class="font-display font-bold text-sm truncate">{{ pt?.dark_horse ?? '—' }}</span>
               </div>
             </div>
@@ -204,8 +221,9 @@
                     >
                       <img
                         :src="flagUrl(t, 40)" :alt="t"
-                        :title="t === winnerFor(row.user_id) ? `${t} — predicted champion` : t"
+                        :title="coinTitle(t, { champion: t === winnerFor(row.user_id) })"
                         class="w-5 h-5 sm:w-6 sm:h-6 flag-coin"
+                        :class="coinClass(t)"
                       />
                       <!-- Crown stays inside the champion's coin (no z-index) so it
                            keeps the row's natural overlap — coins to the right paint
@@ -227,13 +245,21 @@
                     v-if="darkHorseFor(row.user_id)"
                     class="self-stretch w-px bg-ink/10 mx-[5px] sm:mx-3 shrink-0"
                   ></span>
-                  <img
-                    v-if="darkHorseFor(row.user_id)"
-                    :src="flagUrl(darkHorseFor(row.user_id), 40)"
-                    :alt="darkHorseFor(row.user_id)"
-                    :title="`${darkHorseFor(row.user_id)} — dark horse`"
-                    class="w-5 h-5 sm:w-6 sm:h-6 flag-coin shrink-0"
-                  />
+                  <span v-if="darkHorseFor(row.user_id)" class="inline-flex items-center gap-1 shrink-0">
+                    <img
+                      :src="flagUrl(darkHorseFor(row.user_id), 40)"
+                      :alt="darkHorseFor(row.user_id)"
+                      :title="dhInfo(row.user_id).title"
+                      class="w-5 h-5 sm:w-6 sm:h-6 flag-coin"
+                      :class="dhInfo(row.user_id).coinClass"
+                    />
+                    <span
+                      v-if="dhInfo(row.user_id).show"
+                      class="text-[10px] font-bold leading-none px-1.5 py-0.5 rounded-full tnum"
+                      :class="dhInfo(row.user_id).climbing ? 'bg-gold-soft text-gold-dark' : 'bg-ink/5 text-ink/40'"
+                      :title="dhInfo(row.user_id).title"
+                    >{{ dhInfo(row.user_id).text }}</span>
+                  </span>
                 </div>
               </td>
               <td class="text-center py-3.5 pl-4 pr-2 sm:pr-6 font-display font-extrabold text-base"
@@ -266,6 +292,7 @@ import Flag from '../components/Flag.vue'
 import Icon from '../components/Icon.vue'
 import ScoringInfoModal from '../components/ScoringInfoModal.vue'
 import { flagUrl } from '../lib/flags.js'
+import { POINTS } from '../lib/scoring.js'
 
 const lb = useLeaderboardStore()
 const auth = useAuthStore()
@@ -303,6 +330,63 @@ const isMe = (row) => row.user_id === auth.session?.user.id
 const top8For = (userId) => [...(lb.top8ByUser[userId] ?? [])].sort((a, b) => a.localeCompare(b))
 const winnerFor = (userId) => lb.winnerByUser[userId] ?? null
 const darkHorseFor = (userId) => lb.darkHorseByUser[userId] ?? null
+
+// ── Pre-tournament coin states (shared by the row + the your-picks card) ──
+// A Top-8 pick rings gold once its team reaches the QF (its +15 is locked in) and
+// greys out if knocked out before getting there. Reached-QF wins over eliminated,
+// since a QF team has already banked its points even if it later loses the tie.
+const reachedQF = (team) => matchesStore.quarterFinalTeams.has(team)
+const isEliminated = (team) => matchesStore.eliminatedTeams.has(team)
+
+function coinClass(team) {
+  if (reachedQF(team)) return 'ring-2 ring-gold ring-offset-1 ring-offset-canvas'
+  if (isEliminated(team)) return 'opacity-50 grayscale'
+  return ''
+}
+function coinTitle(team, { champion = false } = {}) {
+  const base = champion ? `${team} — predicted champion` : team
+  if (reachedQF(team)) return `${base} · reached the quarter-finals (+${POINTS.pretournament.quarterFinalist})`
+  if (isEliminated(team)) return `${base} · eliminated`
+  return base
+}
+
+// Dark-horse pill: banked points + whether the tally can still grow. The coin
+// greys out once the run is over; the pill is gold while it can still climb.
+const DH_STAGE = {
+  [POINTS.darkHorse.champion]: 'won the tournament',
+  [POINTS.darkHorse.runnerUp]: 'reached the final',
+  [POINTS.darkHorse.semiFinal]: 'reached the semi-final',
+  [POINTS.darkHorse.quarterFinal]: 'reached the quarter-final',
+  [POINTS.darkHorse.roundOf16]: 'reached the round of 16',
+}
+function dhDisplay(team) {
+  if (!team) return null
+  const pts = matchesStore.darkHorsePoints(team)
+  const out = isEliminated(team)
+  const title = pts > 0 ? `${team} — ${DH_STAGE[pts]} (+${pts})`
+    : out ? `${team} — eliminated`
+    : `${team} — dark horse`
+  return {
+    show: pts > 0 || out,                       // something to say: banked, or done
+    climbing: !out && pts < POINTS.darkHorse.champion, // still alive, not maxed
+    text: pts > 0 ? `+${pts}` : '–',
+    title,
+    coinClass: out ? 'opacity-50 grayscale' : '',
+  }
+}
+const dhInfo = (userId) => dhDisplay(darkHorseFor(userId))
+
+// ── Your own banked pre-tournament points (the your-picks card breakdown) ──
+const myTop8Pts = computed(() =>
+  (pt.value?.top8 ?? []).filter(reachedQF).length * POINTS.pretournament.quarterFinalist
+)
+const championWinner = computed(() => matchesStore.pretournamentResults.tournamentWinner)
+const myChampionState = computed(() => {
+  if (!pt.value?.winner) return null
+  if (!championWinner.value) return 'pending'
+  return pt.value.winner === championWinner.value ? 'hit' : 'miss'
+})
+const myDarkHorse = computed(() => dhDisplay(pt.value?.dark_horse))
 
 const AVATAR_COLORS = ['bg-pitch', 'bg-emerald-600', 'bg-rose-500', 'bg-gold', 'bg-amber-600', 'bg-sky-600', 'bg-indigo-500', 'bg-teal-600']
 const avatarColor = (i) => AVATAR_COLORS[i % AVATAR_COLORS.length]

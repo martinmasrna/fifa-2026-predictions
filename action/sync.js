@@ -15,6 +15,7 @@ import {
   buildMatchLookup,
   matchNoFor,
   resolveKnockoutSlots,
+  propagateBracket,
   buildResultUpdate,
 } from './feed.js'
 
@@ -159,6 +160,18 @@ async function main() {
       .from('matches')
       .select('*')
     const matchMap = new Map(updatedMatches.map(m => [m.match_no, m]))
+
+    // Step 2.5: Self-propagate the bracket. Fill "W##"/"L##" slots in later
+    // rounds from our own finalized advancers, so the bracket fills the instant
+    // a knockout match finalizes — independent of openfootball feed lag. (R32
+    // group-placement codes still come from the feed/Admin.) Updates are merged
+    // into matchMap locally so the rescore below sees the resolved teams.
+    const propagation = propagateBracket(schedule, matchMap)
+    if (propagation.length > 0) {
+      await updateMatches(propagation)
+      console.log(`Propagated ${propagation.length} bracket slot(s) from advancers`)
+      for (const u of propagation) Object.assign(matchMap.get(u.match_no), u)
+    }
 
     // Step 3: Rescore all members for all final matches
     const finalMatches = updatedMatches.filter(m => m.status === 'final')
