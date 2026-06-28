@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl mx-auto space-y-6">
+  <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-4">
       <div class="w-16 h-16 rounded-full grid place-items-center text-white font-display font-extrabold text-2xl shrink-0"
@@ -54,6 +54,13 @@
       </div>
     </div>
 
+    <!-- Leaderboard progression over the tournament -->
+    <div class="card p-5">
+      <h2 class="font-display font-bold text-lg">Leaderboard progression</h2>
+      <p class="text-sm text-ink/45 mb-3">Points above or below the field average each round</p>
+      <ProgressionChart :selected-user-id="selectedUserId" @select-user="selectedUserId = $event" />
+    </div>
+
     <!-- Pre-tournament picks -->
     <div class="card p-5">
       <div class="flex items-center justify-between mb-4">
@@ -96,6 +103,7 @@ import { useLeaderboardStore } from '../stores/leaderboard.js'
 import { nowMs } from '../lib/serverTime.js'
 import { MATCH_1_KICKOFF } from '../config.js'
 import Flag from '../components/Flag.vue'
+import ProgressionChart from '../components/ProgressionChart.vue'
 
 const auth = useAuthStore()
 const matchesStore = useMatchesStore()

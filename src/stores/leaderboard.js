@@ -77,6 +77,23 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
     return data ?? []
   }
 
+  // Cumulative-points series for the progression chart. Snapshots store each
+  // user's grand_total at every completed round (action/sync.js), so we just
+  // shape them into { rounds (X axis, chronological), byUser } for plotting.
+  async function loadProgression() {
+    const { data } = await supabase
+      .from('standings_snapshots')
+      .select('round_key, user_id, total_points, captured_at')
+      .order('captured_at', { ascending: true })
+    const rounds = []
+    const byUser = {} // user_id -> { round_key -> total_points }
+    for (const s of data ?? []) {
+      if (!rounds.includes(s.round_key)) rounds.push(s.round_key)
+      ;(byUser[s.user_id] ??= {})[s.round_key] = s.total_points
+    }
+    return { rounds, byUser }
+  }
+
   async function loadLatestCompletedRound() {
     const { data } = await supabase
       .from('standings_snapshots')
@@ -115,6 +132,6 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
 
   return {
     rows, rankedRows, top8ByUser, winnerByUser, darkHorseByUser, loading,
-    load, subscribeRealtime, unsubscribeRealtime, loadRoundRecap, loadLatestCompletedRound, loadRankDelta,
+    load, subscribeRealtime, unsubscribeRealtime, loadRoundRecap, loadProgression, loadLatestCompletedRound, loadRankDelta,
   }
 })
