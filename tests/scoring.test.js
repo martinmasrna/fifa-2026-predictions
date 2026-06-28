@@ -16,6 +16,8 @@ describe('buildPretournamentResults', () => {
 
   it('collects resolved participants per stage and the final result', () => {
     const matches = [
+      m('Round of 32', 'Brazil', 'Mexico'),
+      m('Round of 16', 'Brazil', 'Japan'),
       m('Quarter-final', 'Brazil', 'France'),
       m('Quarter-final', 'Spain', 'Argentina'),
       m('Semi-final', 'Brazil', 'Spain'),
@@ -26,6 +28,10 @@ describe('buildPretournamentResults', () => {
     expect(r.semiFinalists.sort()).toEqual(['Brazil', 'Spain'])
     expect(r.tournamentWinner).toBe('Brazil')
     expect(r.runnerUp).toBe('Spain')
+    // Round of 32 counts teams from that stage and every stage beyond it.
+    expect(r.roundOf32Teams).toContain('Mexico')   // only ever a Ro32 participant
+    expect(r.roundOf32Teams).toContain('Argentina') // reached via a later stage
+    expect(r.roundOf16Teams).not.toContain('Mexico')
   })
 
   it('ignores unresolved slots and an unfinished final', () => {
@@ -222,7 +228,7 @@ describe('scorePretournament', () => {
   })
 
   // Dark horse: scored on the furthest stage the picked team reaches —
-  // Round of 16: 5, Quarter-final: 10, Semi-final: 20, Runner-up: 30, Champion: 50
+  // Round of 32: 2, Round of 16: 5, Quarter-final: 10, Semi-final: 20, Runner-up: 30, Champion: 50
   it('dark horse becomes champion → 50 pts', () => {
     const pred = { dark_horse: 'Norway' }
     const results = {
@@ -278,6 +284,18 @@ describe('scorePretournament', () => {
     expect(scorePretournament(pred, results).dark_horse_pts).toBe(5)
   })
 
+  it('dark horse reaches round of 32 (no further) → 2 pts', () => {
+    const pred = { dark_horse: 'Egypt' }
+    const results = {
+      tournamentWinner: 'Norway', runnerUp: 'Brazil',
+      semiFinalists: ['Norway', 'Brazil', 'France', 'Italy'],
+      quarterFinalists: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
+      roundOf16Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
+      roundOf32Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan', 'Egypt'],
+    }
+    expect(scorePretournament(pred, results).dark_horse_pts).toBe(2)
+  })
+
   it('dark horse eliminated in group stage → 0 pts', () => {
     const pred = { dark_horse: 'Mexico' }
     const results = {
@@ -285,6 +303,7 @@ describe('scorePretournament', () => {
       semiFinalists: ['Norway', 'Brazil', 'France', 'Italy'],
       quarterFinalists: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
       roundOf16Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
+      roundOf32Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
     }
     expect(scorePretournament(pred, results).dark_horse_pts).toBe(0)
   })
@@ -300,12 +319,14 @@ describe('darkHorsePoints', () => {
     semiFinalists: ['Norway', 'Brazil', 'France', 'Italy'],
     quarterFinalists: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan'],
     roundOf16Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan', 'Egypt'],
+    roundOf32Teams: ['Norway', 'Brazil', 'France', 'Italy', 'Croatia', 'Spain', 'Germany', 'Japan', 'Egypt', 'Morocco'],
   }
   it('champion → 50', () => expect(darkHorsePoints('Norway', reality)).toBe(50))
   it('runner-up → 30', () => expect(darkHorsePoints('Brazil', reality)).toBe(30))
   it('semi-finalist (no further) → 20', () => expect(darkHorsePoints('Italy', reality)).toBe(20))
   it('quarter-finalist (no further) → 10', () => expect(darkHorsePoints('Croatia', reality)).toBe(10))
   it('round of 16 (no further) → 5', () => expect(darkHorsePoints('Egypt', reality)).toBe(5))
+  it('round of 32 (no further) → 2', () => expect(darkHorsePoints('Morocco', reality)).toBe(2))
   it('not reached / eliminated early → 0', () => expect(darkHorsePoints('Mexico', reality)).toBe(0))
   it('no team → 0', () => expect(darkHorsePoints(null, reality)).toBe(0))
 })

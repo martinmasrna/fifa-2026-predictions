@@ -27,6 +27,7 @@ export const POINTS = {
     semiFinal: 20,
     quarterFinal: 10,
     roundOf16: 5,
+    roundOf32: 2,
   },
 }
 
@@ -136,7 +137,7 @@ export function scoreKnockoutMatch(prediction, reality) {
  *
  * The dark horse pick is scored purely on how far that team advances —
  * not on which team was picked — rewarding a genuine Cinderella run
- * (Round of 16: 5, Quarter-final: 10, Semi-final: 20, Runner-up: 30, Champion: 50).
+ * (Round of 32: 2, Round of 16: 5, Quarter-final: 10, Semi-final: 20, Runner-up: 30, Champion: 50).
  *
  * @param {{ top8: string[], winner: string, dark_horse: string } | null} prediction
  * @param {{
@@ -145,6 +146,7 @@ export function scoreKnockoutMatch(prediction, reality) {
  *   tournamentWinner: string | null,
  *   runnerUp: string | null,
  *   roundOf16Teams: string[],
+ *   roundOf32Teams: string[],
  * }} reality
  * @returns {{ top8_pts: number, winner_pts: number, dark_horse_pts: number }}
  */
@@ -177,7 +179,7 @@ export function scorePretournament(prediction, reality) {
  * participant of a match in that stage, so this grows as the bracket plays out.
  *
  * @param {string | null | undefined} team
- * @param {{ quarterFinalists: string[], semiFinalists: string[], tournamentWinner: string | null, runnerUp: string | null, roundOf16Teams: string[] }} reality
+ * @param {{ quarterFinalists: string[], semiFinalists: string[], tournamentWinner: string | null, runnerUp: string | null, roundOf16Teams: string[], roundOf32Teams: string[] }} reality
  * @returns {number}
  */
 export function darkHorsePoints(team, reality) {
@@ -187,6 +189,7 @@ export function darkHorsePoints(team, reality) {
   if (reality.semiFinalists?.includes(team)) return POINTS.darkHorse.semiFinal
   if (reality.quarterFinalists?.includes(team)) return POINTS.darkHorse.quarterFinal
   if (reality.roundOf16Teams?.includes(team)) return POINTS.darkHorse.roundOf16
+  if (reality.roundOf32Teams?.includes(team)) return POINTS.darkHorse.roundOf32
   return 0
 }
 
@@ -215,6 +218,7 @@ export function buildPretournamentResults(matches) {
   const semiFinalists = teamsWhere(m => m.stage === 'Semi-final')
   const r16Stages = new Set(['Round of 16', 'Quarter-final', 'Semi-final', 'Third place', 'Final'])
   const roundOf16Teams = teamsWhere(m => r16Stages.has(m.stage))
+  const roundOf32Teams = teamsWhere(m => m.stage === 'Round of 32' || r16Stages.has(m.stage))
 
   const finalMatch = matches.find(m => m.stage === 'Final')
   let tournamentWinner = null
@@ -224,5 +228,5 @@ export function buildPretournamentResults(matches) {
     runnerUp = finalMatch.advancer === finalMatch.team1 ? finalMatch.team2 : finalMatch.team1
   }
 
-  return { quarterFinalists, semiFinalists, tournamentWinner, runnerUp, roundOf16Teams }
+  return { quarterFinalists, semiFinalists, tournamentWinner, runnerUp, roundOf16Teams, roundOf32Teams }
 }

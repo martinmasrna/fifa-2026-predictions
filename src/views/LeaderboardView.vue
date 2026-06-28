@@ -358,6 +358,7 @@ const DH_STAGE = {
   [POINTS.darkHorse.semiFinal]: 'reached the semi-final',
   [POINTS.darkHorse.quarterFinal]: 'reached the quarter-final',
   [POINTS.darkHorse.roundOf16]: 'reached the round of 16',
+  [POINTS.darkHorse.roundOf32]: 'reached the round of 32',
 }
 function dhDisplay(team) {
   if (!team) return null
