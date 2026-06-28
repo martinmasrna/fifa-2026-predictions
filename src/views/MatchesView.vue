@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Sticky filter bar: negative margin absorbs main's py-6/7 so it looks identical at rest -->
-    <div ref="filterBar" class="sticky top-16 z-20 bg-canvas -mt-6 sm:-mt-7 pt-6 sm:pt-7 pb-5 -mx-4 sm:-mx-5 px-4 sm:px-5">
+    <div ref="filterBar" class="sticky z-20 bg-canvas -mt-6 sm:-mt-7 pt-6 sm:pt-7 pb-5 -mx-4 sm:-mx-5 px-4 sm:px-5" :style="{ top: 'var(--nav-h, 4rem)' }">
       <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
         <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Matches</h1></div>
         <div class="flex gap-1.5">
@@ -51,8 +51,37 @@
             :class="activeMatchday === md ? 'seg-chip-on' : 'seg-chip-off'"
           >{{ abbreviate(md) }}</button>
         </div>
+
+        <span class="text-xs font-semibold text-ink/40">Team</span>
+        <button
+          @click="teamPickerOpen = true"
+          class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-ink/15 bg-white text-sm hover:border-pitch/40 hover:bg-pitch-soft/40 transition-colors w-full max-w-[14rem]"
+        >
+          <template v-if="activeTeam">
+            <Flag :team="activeTeam" size="xs" shape="coin" />
+            <span class="font-semibold truncate">{{ activeTeam }}</span>
+            <span
+              role="button"
+              class="ml-auto text-ink/40 hover:text-ink shrink-0"
+              aria-label="Clear team filter"
+              @click.stop="activeTeam = null"
+            >✕</span>
+          </template>
+          <template v-else>
+            <Icon name="search" :size="15" class="text-ink/40" />
+            <span class="text-ink/55">Pick a team</span>
+            <span class="ml-auto text-ink/30 shrink-0">▾</span>
+          </template>
+        </button>
       </div>
     </div>
+
+    <TeamFilterPopup
+      v-if="teamPickerOpen"
+      v-model="activeTeam"
+      :teams="matchesStore.teams"
+      @close="teamPickerOpen = false"
+    />
 
     <!-- Match list -->
     <div v-if="!loaded" class="grid md:grid-cols-2 gap-3">
@@ -92,6 +121,8 @@ import { nowMs } from '../lib/serverTime.js'
 import MatchCard from '../components/MatchCard.vue'
 import MatchCardSkeleton from '../components/MatchCardSkeleton.vue'
 import Icon from '../components/Icon.vue'
+import Flag from '../components/Flag.vue'
+import TeamFilterPopup from '../components/TeamFilterPopup.vue'
 
 const matchesStore = useMatchesStore()
 const loaded = computed(() => matchesStore.matches.length > 0)
@@ -105,11 +136,14 @@ const filters = [
 const activeFilter = ref('all')
 const activeGroup = ref(null)
 const activeMatchday = ref(null)
+const activeTeam = ref(null)
+const teamPickerOpen = ref(false)
 
 function resetFilters() {
   activeFilter.value = 'all'
   activeGroup.value = null
   activeMatchday.value = null
+  activeTeam.value = null
 }
 
 function abbreviate(label) {
@@ -146,6 +180,10 @@ const visibleMatches = computed(() => {
   if (activeGroup.value === 'knockout') ms = ms.filter(m => m.stage !== 'group')
   else if (activeGroup.value) ms = ms.filter(m => m.group === activeGroup.value)
   if (activeMatchday.value) ms = ms.filter(m => m.round_label === activeMatchday.value)
+  // Team filter: matches the side actually holds this team. Knockout slots carry
+  // placeholder codes (e.g. "W74", "1C") until resolved, so an exact name match
+  // naturally excludes ties the team hasn't reached yet.
+  if (activeTeam.value) ms = ms.filter(m => m.team1 === activeTeam.value || m.team2 === activeTeam.value)
 
   const n = nowMs.value
   // open = predictions still open (kickoff in the future)
@@ -184,14 +222,26 @@ async function scrollToTarget() {
   const node = el.$el ?? el
   // scroll to the round-group section (includes the h2 header above the card)
   const section = node.parentElement?.parentElement ?? node
+  // Inset = the same nav height the sticky bar pins to (via --nav-h) + the bar's
+  // own height + a little breathing room. Driving the landing off scroll-margin
+  // lets the browser place the section under the sticky chrome, so the two never
+  // disagree the way a hand-rolled offset did across breakpoints.
   const navHeight = document.querySelector('nav')?.offsetHeight ?? 0
   const barHeight = filterBar.value?.offsetHeight ?? 0
-  const top = section.getBoundingClientRect().top + window.scrollY - navHeight - barHeight - 10
-  window.scrollTo({ top, behavior: 'smooth' })
+  section.style.scrollMarginTop = `${navHeight + barHeight + 10}px`
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 onMounted(() => { if (loaded.value) scrollToTarget() })
 watch(loaded, (val) => { if (val) scrollToTarget() })
+
+// A deliberate filter change supersedes the one-time "jump to the live match"
+// autoscroll: the user is now exploring a subset, so show it from the top. Also
+// marks the autoscroll as done so it can't re-fire if it hadn't yet.
+watch([activeFilter, activeGroup, activeMatchday, activeTeam], () => {
+  hasScrolled.value = true
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
 
 const groupedByRound = computed(() => {
   const map = new Map()

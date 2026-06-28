@@ -58,21 +58,21 @@
 
           <!-- ── Full breakdown grid ── -->
           <template v-else>
-            <div class="px-6 py-2 overflow-auto flex-1 min-h-0">
+            <div class="py-2 overflow-auto flex-1 min-h-0">
               <table class="text-sm w-full" :style="{ minWidth: 120 + matches.length * 70 + 'px' }">
                 <thead>
                   <tr class="text-[11px] uppercase tracking-wide text-ink/45">
-                    <th class="text-left py-2 pr-2 sticky left-0 bg-white z-10">Player</th>
+                    <th class="text-left py-2 pr-2 pl-6 sticky left-0 bg-white z-10">Player</th>
                     <th v-for="m in matches" :key="m.match_no" class="px-1.5 py-2 text-center font-semibold">
                       <div>{{ code(m.team1) }}–{{ code(m.team2) }}</div>
                       <div class="font-display font-bold text-ink tnum">{{ m.ft1 }}–{{ m.ft2 }}</div>
                     </th>
-                    <th class="px-2 py-2 text-center">Total</th>
+                    <th class="pl-2 pr-6 py-2 text-center">Total</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-ink/5">
                   <tr v-for="row in rows" :key="row.user_id" :class="row.user_id === myId ? 'bg-pitch-soft' : ''">
-                    <td class="relative py-2.5 pr-2 pl-3 font-semibold whitespace-nowrap sticky left-0 z-10"
+                    <td class="relative py-2.5 pr-2 pl-6 font-semibold whitespace-nowrap sticky left-0 z-10"
                         :class="row.user_id === myId ? 'bg-pitch-soft text-pitch-dark' : 'bg-white'">
                       <span v-if="row.user_id === myId" class="absolute left-0 top-0 bottom-0 w-1 bg-pitch"></span>
                       <span v-if="row.winner">🏆 </span>{{ row.display_name }}
@@ -80,7 +80,7 @@
                     <td v-for="m in matches" :key="m.match_no" class="px-1.5 py-2.5 text-center tnum" :class="cellClass(cellFor(row.user_id, m))">
                       {{ cellFor(row.user_id, m).pred }}
                     </td>
-                    <td class="px-2 py-2.5 text-center font-display font-extrabold tnum">{{ row.total }}</td>
+                    <td class="pl-2 pr-6 py-2.5 text-center font-display font-extrabold tnum">{{ row.total }}</td>
                   </tr>
                 </tbody>
               </table>

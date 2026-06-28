@@ -5,7 +5,7 @@
     :alt="team"
     :title="team"
     loading="lazy"
-    :class="[sizeClass, shapeClass, dim ? 'opacity-50 grayscale' : '', highlight ? 'ring-2 ring-gold ring-offset-1 ring-offset-canvas' : '']"
+    :class="[sizeClass, shapeClass, dim ? 'opacity-80 grayscale' : '', highlight ? 'ring-2 ring-gold ring-offset-1 ring-offset-canvas' : '']"
   />
   <!-- Fallback when no flag is mapped (unresolved knockout slots, e.g. "2B") -->
   <span

@@ -25,6 +25,7 @@ defineProps({
 })
 
 const ladder = [
+  { short: 'R32', long: 'Reaches the round of 32', pts: POINTS.darkHorse.roundOf32 },
   { short: 'R16', long: 'Reaches the round of 16', pts: POINTS.darkHorse.roundOf16 },
   { short: 'QF', long: 'Reaches the quarter-finals', pts: POINTS.darkHorse.quarterFinal },
   { short: 'SF', long: 'Reaches the semi-finals', pts: POINTS.darkHorse.semiFinal },
