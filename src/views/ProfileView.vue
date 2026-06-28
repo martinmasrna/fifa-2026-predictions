@@ -76,11 +76,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl bg-gold-soft/60 p-3 flex items-center gap-2.5">
             <Flag v-if="pt.winner" :team="pt.winner" size="md" shape="coin" :dim="isEliminated(pt.winner)" />
-            <div class="min-w-0"><div class="text-[11px] font-bold uppercase tracking-wide text-gold-dark">Champion</div><div class="text-sm font-display font-bold truncate" :class="isEliminated(pt.winner) ? 'text-ink/40 line-through' : ''">{{ pt.winner ?? '—' }}</div></div>
+            <div class="min-w-0"><div class="text-[11px] font-bold uppercase tracking-wide text-gold-dark">Champion</div><div class="text-sm font-display font-bold truncate" :class="isEliminated(pt.winner) ? 'text-ink/60 line-through' : ''">{{ pt.winner ?? '—' }}</div></div>
           </div>
           <div class="rounded-xl bg-purple-50 p-3 flex items-center gap-2.5">
             <Flag v-if="pt.dark_horse" :team="pt.dark_horse" size="md" shape="coin" :dim="isEliminated(pt.dark_horse)" />
-            <div class="min-w-0"><div class="text-[11px] font-bold uppercase tracking-wide text-purple-700">Dark horse</div><div class="text-sm font-display font-bold truncate" :class="isEliminated(pt.dark_horse) ? 'text-ink/40 line-through' : ''">{{ pt.dark_horse ?? '—' }}</div></div>
+            <div class="min-w-0"><div class="text-[11px] font-bold uppercase tracking-wide text-purple-700">Dark horse</div><div class="text-sm font-display font-bold truncate" :class="isEliminated(pt.dark_horse) ? 'text-ink/60 line-through' : ''">{{ pt.dark_horse ?? '—' }}</div></div>
           </div>
         </div>
       </div>
