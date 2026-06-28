@@ -1,5 +1,5 @@
 <template>
-  <nav class="sticky top-0 z-30 bg-canvas border-b border-ink/10">
+  <nav ref="navEl" class="sticky top-0 z-30 bg-canvas border-b border-ink/10">
     <div class="max-w-6xl mx-auto px-4 sm:px-5">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2.5 shrink-0">
@@ -47,7 +47,7 @@
 
 <script setup>
 import { RouterLink, useLink, useRouter, useRoute } from 'vue-router'
-import { defineComponent, h, computed, ref, onMounted, watch, nextTick } from 'vue'
+import { defineComponent, h, computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 import { CONFIG } from '../config.js'
 import Icon from './Icon.vue'
@@ -62,13 +62,36 @@ async function signOut() {
   router.push('/auth')
 }
 
+// Publish the live nav height as a CSS variable so anything that pins below the
+// nav (e.g. Matches' sticky filter bar) and any scroll-offset math read one
+// shared source of truth — the nav is ~64px on desktop but a second row taller
+// on mobile, and a hardcoded offset can't track that.
+const navEl = ref(null)
+let navResizeObserver = null
+function publishNavHeight() {
+  const h = navEl.value?.offsetHeight ?? 0
+  document.documentElement.style.setProperty('--nav-h', `${h}px`)
+}
+
 // Keep the active tab visible in the horizontally-scrolling mobile nav.
+// Scroll the strip itself (horizontal only) — never call scrollIntoView, which
+// can also yank the page's vertical scroll and fight other views' autoscroll.
 const mobileNav = ref(null)
 function scrollActiveIntoView() {
-  mobileNav.value?.querySelector('a.bg-pitch')
-    ?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+  const strip = mobileNav.value
+  const active = strip?.querySelector('a.bg-pitch')
+  if (!strip || !active) return
+  const left = active.offsetLeft - (strip.clientWidth - active.clientWidth) / 2
+  strip.scrollTo({ left, behavior: 'smooth' })
 }
-onMounted(scrollActiveIntoView)
+
+onMounted(() => {
+  publishNavHeight()
+  navResizeObserver = new ResizeObserver(publishNavHeight)
+  if (navEl.value) navResizeObserver.observe(navEl.value)
+  scrollActiveIntoView()
+})
+onUnmounted(() => navResizeObserver?.disconnect())
 watch(() => route.path, () => nextTick(scrollActiveIntoView))
 
 const NavLink = defineComponent({

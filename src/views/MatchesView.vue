@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Sticky filter bar: negative margin absorbs main's py-6/7 so it looks identical at rest -->
-    <div ref="filterBar" class="sticky top-16 z-20 bg-canvas -mt-6 sm:-mt-7 pt-6 sm:pt-7 pb-5 -mx-4 sm:-mx-5 px-4 sm:px-5">
+    <div ref="filterBar" class="sticky z-20 bg-canvas -mt-6 sm:-mt-7 pt-6 sm:pt-7 pb-5 -mx-4 sm:-mx-5 px-4 sm:px-5" :style="{ top: 'var(--nav-h, 4rem)' }">
       <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
         <div class="flex items-center gap-3"><span class="gold-rule"></span><h1 class="font-display font-extrabold text-2xl sm:text-3xl">Matches</h1></div>
         <div class="flex gap-1.5">
@@ -184,10 +184,14 @@ async function scrollToTarget() {
   const node = el.$el ?? el
   // scroll to the round-group section (includes the h2 header above the card)
   const section = node.parentElement?.parentElement ?? node
+  // Inset = the same nav height the sticky bar pins to (via --nav-h) + the bar's
+  // own height + a little breathing room. Driving the landing off scroll-margin
+  // lets the browser place the section under the sticky chrome, so the two never
+  // disagree the way a hand-rolled offset did across breakpoints.
   const navHeight = document.querySelector('nav')?.offsetHeight ?? 0
   const barHeight = filterBar.value?.offsetHeight ?? 0
-  const top = section.getBoundingClientRect().top + window.scrollY - navHeight - barHeight - 10
-  window.scrollTo({ top, behavior: 'smooth' })
+  section.style.scrollMarginTop = `${navHeight + barHeight + 10}px`
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 onMounted(() => { if (loaded.value) scrollToTarget() })
