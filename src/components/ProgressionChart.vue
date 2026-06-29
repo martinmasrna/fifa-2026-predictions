@@ -220,6 +220,9 @@ const yGuides = computed(() => {
 
 function abbrev(rk) {
   if (rk === 'Start') return 'Start'
+  // Knockout matchday, e.g. "Round of 32 · Matchday 2" → "R32·2"
+  const ko = /^Round of (32|16)\b.*Matchday (\d+)$/.exec(rk)
+  if (ko) return `R${ko[1]}·${ko[2]}`
   const md = /^Matchday (\d+)$/.exec(rk)
   if (md) return 'MD' + md[1]
   return {
