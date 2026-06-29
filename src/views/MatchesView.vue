@@ -147,7 +147,10 @@ function resetFilters() {
 }
 
 function abbreviate(label) {
-  const md = label.match(/matchday\s+(\d+)/i)
+  // Knockout matchday, e.g. "Round of 32 · Matchday 2" → "R32·2"
+  const ko = label.match(/^round of (32|16)\b.*matchday\s+(\d+)/i)
+  if (ko) return `R${ko[1]}·${ko[2]}`
+  const md = label.match(/^matchday\s+(\d+)/i)
   if (md) return md[1]
   if (/round of 32/i.test(label)) return 'R32'
   if (/round of 16/i.test(label)) return 'R16'
