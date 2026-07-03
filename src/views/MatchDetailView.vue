@@ -53,13 +53,19 @@
       </div>
 
       <div v-else class="card overflow-hidden">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
           <thead class="text-ink/40 text-xs uppercase tracking-wide border-b border-ink/10">
             <tr>
-              <th class="text-left px-4 py-3 font-medium">Player</th>
-              <th class="text-center px-4 py-3 font-medium">Prediction</th>
-              <th v-if="match.stage !== 'group'" class="text-center px-4 py-3 font-medium">Advance</th>
-              <th class="text-center px-4 py-3 font-medium">Points</th>
+              <th class="text-left px-2 sm:px-4 py-3 font-medium w-auto">Player</th>
+              <th class="text-center px-2 sm:px-4 py-3 font-medium w-16 sm:w-28">
+                <span class="sm:hidden">Pred.</span><span class="hidden sm:inline">Prediction</span>
+              </th>
+              <th v-if="match.stage !== 'group'" class="text-center px-1 sm:px-4 py-3 font-medium w-10 sm:w-32">
+                <span class="sm:hidden">Adv.</span><span class="hidden sm:inline">Advance</span>
+              </th>
+              <th class="text-center px-2 sm:px-4 py-3 font-medium w-12 sm:w-24">
+                <span class="sm:hidden">Pts</span><span class="hidden sm:inline">Points</span>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-ink/5">
@@ -68,14 +74,17 @@
               :key="row.user_id"
               :class="isMe(row) ? 'bg-pitch-soft' : 'hover:bg-pitch-soft/30'"
             >
-              <td class="px-4 py-3 font-semibold" :class="isMe(row) ? 'text-pitch-dark' : ''">
+              <td class="px-2 sm:px-4 py-3 font-semibold truncate" :class="isMe(row) ? 'text-pitch-dark' : ''">
                 {{ row.members?.display_name }}
               </td>
-              <td class="px-4 py-3 text-center font-display tnum font-bold">{{ row.pred1 }}–{{ row.pred2 }}</td>
-              <td v-if="match.stage !== 'group'" class="px-4 py-3 text-center text-xs text-ink/60">
-                {{ row.pred_advancer ?? (row.pred1 > row.pred2 ? match.team1 : row.pred1 < row.pred2 ? match.team2 : '—') }}
+              <td class="px-2 sm:px-4 py-3 text-center font-display tnum font-bold">{{ row.pred1 }}–{{ row.pred2 }}</td>
+              <td v-if="match.stage !== 'group'" class="px-1 sm:px-4 py-3">
+                <div class="flex items-center justify-center gap-2">
+                  <Flag :team="advancerName(row)" size="xs" />
+                  <span class="hidden sm:inline text-xs text-ink/60">{{ advancerName(row) ?? '—' }}</span>
+                </div>
               </td>
-              <td class="px-4 py-3 text-center">
+              <td class="px-2 sm:px-4 py-3 text-center">
                 <span v-if="scoreMap.get(row.user_id) != null" class="badge-points">+{{ scoreMap.get(row.user_id) }}</span>
                 <span v-else class="text-ink/25">—</span>
               </td>
@@ -129,6 +138,8 @@ const rows = ref([])
 const scoreMap = ref(new Map())
 
 const isMe = (row) => row.user_id === auth.session?.user.id
+const advancerName = (row) =>
+  row.pred_advancer ?? (row.pred1 > row.pred2 ? match.value.team1 : row.pred1 < row.pred2 ? match.value.team2 : null)
 const sortedRows = computed(() =>
   [...rows.value].sort((a, b) => (scoreMap.value.get(b.user_id) ?? -1) - (scoreMap.value.get(a.user_id) ?? -1))
 )
