@@ -75,6 +75,21 @@ async function updateMatches(rows) {
   if (failed) throw failed.error
 }
 
+// Page through a PostgREST query. A single Supabase response is capped at the
+// project's max-rows (1000 by default) and truncated silently past that, so any
+// unbounded SELECT that can exceed it must page. `makeQuery` returns a fresh
+// query builder each call so .range() can be applied per page.
+async function fetchAllRows(makeQuery, pageSize = 1000) {
+  const rows = []
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await makeQuery().range(from, from + pageSize - 1)
+    if (error) throw error
+    rows.push(...data)
+    if (data.length < pageSize) break
+  }
+  return rows
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main sync loop
 // ──────────────────────────────────────────────────────────────
@@ -204,12 +219,20 @@ async function rescoreAllMembers(finalMatches, matchMap) {
   const { data: members } = await supabase.from('members').select('user_id')
   if (!members?.length) return
 
-  // Fetch all predictions for final matches
+  // Fetch all predictions for final matches. MUST page through: PostgREST caps a
+  // single response at the project's max-rows (1000 on Supabase's default), and
+  // silently truncates beyond that — no error. Once members × final-matches
+  // exceeds 1000 (which it did the moment the quarter-finals began), a plain
+  // fetch drops rows; the missing predictions then score 0 in the loop below and
+  // overwrite correct points. Paging keeps the rescore whole no matter the size.
   const finalMatchNos = finalMatches.map(m => m.match_no)
-  const { data: preds } = await supabase
-    .from('predictions')
-    .select('user_id, match_no, pred1, pred2, pred_advancer')
-    .in('match_no', finalMatchNos)
+  const preds = await fetchAllRows(() =>
+    supabase
+      .from('predictions')
+      .select('user_id, match_no, pred1, pred2, pred_advancer')
+      .in('match_no', finalMatchNos)
+      .order('id', { ascending: true })
+  )
 
   const predMap = new Map()
   for (const p of (preds ?? [])) {
